@@ -6,6 +6,10 @@ HOMEPAGE = "http://www.zhangjinzhu.com"
 SUMMARY = "Yet Another Cheat"
  
 Gem::Specification.new do |s|
+
+  s.specification_version = 2 if s.respond_to? :specification_version=
+  s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
+
   s.name = GEM
   s.version = VER
   s.author = AUTHOR
@@ -23,7 +27,7 @@ Gem::Specification.new do |s|
 
   s.has_rdoc = true
   s.rdoc_options = ["--quiet", "--title", "YAC => Yet Another Cheat", "--opname", "index.html", "--line-numbers", "--main", "README.rdoc", "--inline-source"]
-  s.extra_rdoc_files = ["README.rdoc", "README.cn"]
+  s.extra_rdoc_files = "README.rdoc"
  
   s.add_dependency("schacon-git", ">1.0.0")
 end
