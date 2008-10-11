@@ -1,5 +1,6 @@
 GEM = "yac"
-VER = "0.0.2"
+VER = "0.0.3"
+DATE = %q{2008-10-11}
 AUTHOR = "Jinzhu Zhang"
 EMAIL = "wosmvp@gmail.com"
 HOMEPAGE = "http://www.zhangjinzhu.com"
@@ -13,7 +14,7 @@ Gem::Specification.new do |s|
   s.name = GEM
   s.version = VER
   s.author = AUTHOR
-  s.date = %q{2008-10-10}
+  s.date = DATE
   s.email = EMAIL
   s.homepage = HOMEPAGE
   s.summary = SUMMARY

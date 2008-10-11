@@ -8,8 +8,7 @@ module  Yac
   CONFIG = YAML.load_file(File.join(ENV['HOME'],".yacrc"))
   CONFIG["root"] ||= File.join(ENV['HOME'],".yac")
 
-  @main_path = File.join(CONFIG["root"],"/main/")
-  @pri_path = File.join(CONFIG["root"],"/private/")
+  @main_path, @pri_path = File.join(CONFIG["root"],"/main/"), File.join(CONFIG["root"],"/private/")
   @main_git = Git.open(@main_path) if File.exist?(@main_path)
   @pri_git = Git.open(@pri_path)if File.exist?(@pri_path)
 
@@ -18,14 +17,13 @@ module  Yac
       return unless init
     end
     @all_result = []
-    help && exit if args.empty?
+    (help && exit) if args.empty?
     case args.first
     when "show" then show(args[1,args.size])
     when "name" then search(args[1,args.size],"name")
     when "content" then search(args[1,args.size],"content")
     when "update" then update(args[1,args.size])
-    when "add" then add(args[1,args.size])
-    when "edit" then edit(args[1,args.size])
+    when /^(add|edit)$/ then edit(args[1,args.size])
     when "help" then help
     when "shell" then shell(args[1,args.size])
     when "rm" then rm(args[1,args.size])
@@ -33,6 +31,7 @@ module  Yac
     else show(args)
     end
     show_possible_result
+  rescue
   end
 
   def show(args)
@@ -45,15 +44,15 @@ module  Yac
 
   def update(args)
     begin
-      if args
-        @main_path.pull if args.to_s =~ /main/
+      unless args.empty?
         @pri_git.pull if args.to_s =~ /pri/
+        @main_git.pull if args.to_s =~ /main/
       else
-        @main_path.pull
+        @main_git.pull
         @pri_git.pull
       end
     rescue
-      puts "ERROR: can not update #{args}"
+      puts "ERROR: can not update the repository,"
       puts $!
     end
   end
@@ -61,7 +60,6 @@ module  Yac
   def edit(args)
     args.each {|x| edit_single(x)}
   end
-  alias add edit
 
   def rm(args)
     args.each {|x| rm_single(x)}
@@ -71,14 +69,15 @@ module  Yac
     format_file(File.dirname(__FILE__)+"/../README.rdoc")
   end
 
-  def shell(args = "pri")
-    puts "Comming Soon :)"
-    #case args.to_s
-    #when /main/
-    #  system("cd #{@main_path}")
-    #when /pri/
-    #  system("cd #{@pri_path}")
-    #end
+  def shell(args)
+    case args.to_s
+    when /main/
+      puts "\033[31m Welcome To The Main Yac Repository \033[0m"
+      system "cd #{@main_path}; sh"
+    else
+      puts "\033[31m Welcome To The Private Yac Repository \033[0m"
+      system "cd #{@pri_path}; sh"
+    end
   end
 
   protected
@@ -122,12 +121,10 @@ module  Yac
 
   def edit_single(args)
     full_path(args)
+    prepare_dir
     system("#{editor} #{@file_path}")
-    begin
-      @working_git.add
-      @working_git.commit_all(" #{args.sub(/^@/,"")}.ch Updated")
-    rescue
-    end
+    @working_git.add
+    @working_git.commit_all(" #{args.sub(/^@/,"")}.ch Updated")
   end
 
   def editor
@@ -233,5 +230,10 @@ module  Yac
     @main_git = Git.open(@main_path) if File.exist?(@main_path)
     @pri_git = Git.open(@pri_path)if File.exist?(@pri_path)
     puts "Repository init done."
+  end
+
+  def prepare_dir
+    dirseparator = @file_path.rindex(File::Separator)+1
+    FileUtils.mkdir_p(@file_path[0,dirseparator])
   end
 end

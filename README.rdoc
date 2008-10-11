@@ -27,7 +27,7 @@
     $ yac update => Update All
 === Help
     $ yac help
-=== Shell => Comming Soon :)
+=== Shell
     $ yac shell main => Open the main repository's shell
     $ yac shell => Open the private repository's shell
 === Documents format

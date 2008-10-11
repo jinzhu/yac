@@ -27,7 +27,7 @@
     $ yac update 全部更新
 === 帮助
     $ yac help
-=== 打开仓库shell => Comming Soon :)
+=== 打开仓库shell
     $ yac shell main 打开主仓库的shell
     $ yac shell 打开个人仓库的shell
 === 文档格式
