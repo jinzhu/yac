@@ -199,37 +199,22 @@ module  Yac
 
   def init
     FileUtils.mkdir_p(CONFIG['root'])
-    if CONFIG['main']['clone-from']
-      if File.exist?(@main_path)
-        puts "Main repository has already been initialized."
-      else
-        puts "Initialize main repository from #{CONFIG['main']['clone-from']} to #{CONFIG['root']}/main"
-        Git.clone(CONFIG['main']['clone-from'], 'main', :path => CONFIG['root'])
-        puts "Main repository initialized."
+    {"main" => @main_path,"private" => @pri_path}.each do |name,path|
+      unless File.exist?(path)
+        if CONFIG["#{name}"] && CONFIG["#{name}"]['clone-from']
+          puts "Initialize #{name} repository from #{CONFIG[name]['clone-from']} to #{CONFIG['root']}/#{name}"
+          Git.clone(CONFIG["#{name}"]['clone-from'], name, :path => CONFIG['root'])
+        else
+          puts "Initialize #{name} repository from scratch to #{CONFIG['root']}/#{name}"
+          git = Git.init(path)
+          git.add
+          git.commit_all("init #{name} repository")
+        end
+        puts "#{name} repository initialized."
+        @main_git = Git.open(@main_path) if File.exist?(@main_path)
+        @pri_git = Git.open(@pri_path)if File.exist?(@pri_path)
       end
-    else
-      puts "ERROR: configuration for main repository repository is missing!"
-      return
     end
-    
-    unless File.exist?(@pri_path)
-      if CONFIG['private'] && CONFIG['private']['clone-from']
-        puts "Initialize private repository from #{CONFIG['private']['clone-from']} to #{CONFIG['root']}/private"
-        Git.clone(CONFIG['private']['clone-from'], 'private', :path => CONFIG['root'])
-        puts "Private repository initialized."
-      else
-        puts "Initialize private repository from scratch to #{CONFIG['root']}/private"
-        git = Git.init(@pri_path)
-        git.add
-        git.commit_all("init private repository")
-        puts "Private repository initialized."
-      end
-    else
-      puts "Private repository has already been initialized."
-    end
-    @main_git = Git.open(@main_path) if File.exist?(@main_path)
-    @pri_git = Git.open(@pri_path)if File.exist?(@pri_path)
-    puts "Repository init done."
   end
 
   def prepare_dir
