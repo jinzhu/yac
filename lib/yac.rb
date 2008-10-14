@@ -85,9 +85,9 @@ module  Yac
     @level = 0
     case `file #{file}`
     when / PDF /
-      system("#{CONFIG["pdf_command"]||'evince'} #{file}")
+      puts "Please Modify ~/.yacrc To Provide A Valid Command To Open PDF Document" unless system("#{CONFIG["pdf_command"]||'evince'} #{file}")
     when / image /
-      system("#{CONFIG["pic_command"]||'eog'} #{file}")
+      puts "Please Modify ~/.yacrc To Provide A Valid Command To Open Image Document" unless system("#{CONFIG["pic_command"]||'eog'} #{file}")
     else
       File.new(file).each do |x|
         format_section(x)
