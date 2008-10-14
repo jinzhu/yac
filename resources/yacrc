@@ -7,6 +7,9 @@ private:
 #   clone-from:
 #   push-to:
 
+#pdf_command: evince
+#pic_command: evince
+#editor: vim
 
 #Set Color
 #1   -   Change text to hicolor (bold) mode

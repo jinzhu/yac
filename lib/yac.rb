@@ -83,20 +83,27 @@ module  Yac
   protected
   def format_file(file)
     @level = 0
-    File.new(file).each do |x|
-      format_section(x)
+    case `file #{file}`
+    when / PDF /
+      system("#{CONFIG["pdf_command"]||'evince'} #{file}")
+    when / image /
+      system("#{CONFIG["pic_command"]||'eog'} #{file}")
+    else
+      File.new(file).each do |x|
+        format_section(x)
+      end
     end
   end
 
   def format_section(section)
-     case section
-     when /^(=+)\s+(.*)/
-       @level = $1.size
-       puts "\033[" + CONFIG["level#{@level}"].to_s + "m" + "\s"*2*(@level-1) + $2 +"\033[0m"
-     when /^(\s*)#/
-     else
-       puts section.sub(/^\#/,"#").sub(/^\s*/, "\s" * @level * 2 ).gsub(/@@@(.*)@@@/,"\033[" + CONFIG["empha"].to_s + "m" + '\1' + "\033[0m")
-     end
+    case section
+    when /^(=+)\s+(.*)/
+      @level = $1.size
+      puts "\033[" + CONFIG["level#{@level}"].to_s + "m" + "\s"*2*(@level-1) + $2 +"\033[0m"
+    when /^(\s*)#/
+    else
+      puts section.sub(/^\#/,"#").sub(/^\s*/, "\s" * @level * 2 ).gsub(/@@@(.*)@@@/,"\033[" + CONFIG["empha"].to_s + "m" + '\1' + "\033[0m")
+    end
   end
 
   def full_path(args)
@@ -128,7 +135,7 @@ module  Yac
   end
 
   def editor
-    ENV['VISUAL'] || ENV['EDITOR'] || "vim"
+    CONFIG["editor"] || ENV['EDITOR'] || "vim"
   end
 
   def show_single(args)
@@ -138,7 +145,7 @@ module  Yac
       format_file(result.first)
     else
       result.map do |x|
-        if x =~ /\/#{args}\.ch/
+        if x =~ /\/#{args}\.\w+/
           puts "\n\033[#{CONFIG["filename"]}m#{x}\033[0m\n"
           format_file(x)
         end
