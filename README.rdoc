@@ -26,10 +26,10 @@
     $ yac update private => Update private repository
     $ yac update => Update All
 === Help
-    $ yac help
+    $ yac help / yac / -h / --help
 === Shell
-    $ yac shell main => Open the main repository's shell
-    $ yac shell => Open the private repository's shell
+    $ yac shell / sh main => Open the main repository's shell
+    $ yac shell / sh => Open the private repository's shell
 === Documents format
    Use .ch as the suffix ,At the beginning of the row,plus N = for the N-class title
    Use '#' at the beginning of a row to comment the line,You can use '\#' to get '#'

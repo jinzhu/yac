@@ -24,8 +24,8 @@ module  Yac
     when "content" then search(args[1,args.size],"content")
     when "update" then update(args[1,args.size])
     when /^(add|edit)$/ then edit(args[1,args.size])
-    when "help" then help
-    when "shell" then shell(args[1,args.size])
+    when /^(help|-h|yac|--help)$/ then help
+    when /^(sh|shell)$/ then shell(args[1,args.size])
     when "rm" then rm(args[1,args.size])
     when "init" then init
     else show(args)
@@ -86,7 +86,7 @@ module  Yac
     case `file #{file}`
     when / PDF /
       puts "Please Modify ~/.yacrc To Provide A Valid Command To Open PDF Document" unless system("#{CONFIG["pdf_command"]||'evince'} #{file}")
-    when / image /
+    when /( image )|(\.svg)/
       puts "Please Modify ~/.yacrc To Provide A Valid Command To Open Image Document" unless system("#{CONFIG["pic_command"]||'eog'} #{file}")
     else
       File.new(file).each do |x|

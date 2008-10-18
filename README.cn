@@ -26,10 +26,10 @@
     $ yac update private 更新个人仓库
     $ yac update 全部更新
 === 帮助
-    $ yac help
+    $ yac help / -h /--help / yac
 === 打开仓库shell
-    $ yac shell main 打开主仓库的shell
-    $ yac shell 打开个人仓库的shell
+    $ yac shell / sh main 打开主仓库的shell
+    $ yac shell / sh 打开个人仓库的shell
 === 文档格式
    使用.ch后缀,在行首加一个=为一级标题，加N个=为N级标题,不同级别标题可以加入不同颜色高亮
    在行首加入#将忽略该行,使用 '\#'可以得到 '#'的效果
