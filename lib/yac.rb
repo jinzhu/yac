@@ -72,10 +72,10 @@ module  Yac
   def shell(args)
     case args.to_s
     when /main/
-      puts "\033[31m Welcome To The Main Yac Repository \033[0m"
+      colorful(" Welcome To The Main Yac Repository","head1")
       system "cd #{@main_path}; sh"
     else
-      puts "\033[31m Welcome To The Private Yac Repository \033[0m"
+      colorful(" Welcome To The Private Yac Repository","head1")
       system "cd #{@pri_path}; sh"
     end
   end
@@ -99,10 +99,10 @@ module  Yac
     case section
     when /^(=+)\s+(.*)/
       @level = $1.size
-      puts "\033[" + CONFIG["level#{@level}"].to_s + "m" + "\s"*2*(@level-1) + $2 +"\033[0m"
+      colorful("\s"*2*(@level-1) + $2,"head#{@level}")
     when /^(\s*)#/
     else
-      puts section.sub(/^\#/,"#").sub(/^\s*/, "\s" * @level * 2 ).gsub(/@@@(.*)@@@/,"\033[" + CONFIG["empha"].to_s + "m" + '\1' + "\033[0m")
+      colorful(section.sub(/^\#/,"#").sub(/^\s*/, "\s" * @level * 2 ))
     end
   end
 
@@ -141,12 +141,12 @@ module  Yac
   def show_single(args)
     result = search_single(args)
     if result.size == 1
-      puts "\n\033[#{CONFIG["filename"]}m#{result.first}\033[0m\n"
+      colorful(result.first,"filename")
       format_file(result.first)
     else
       result.map do |x|
         if x =~ /\/#{args}\.\w+/
-          puts "\n\033[#{CONFIG["filename"]}m#{x}\033[0m\n"
+          colorful(x,"filename")
           format_file(x)
         end
       end
@@ -201,7 +201,10 @@ module  Yac
   end
 
   def show_possible_result
-    puts "\n\033[" + CONFIG["possible_result_title"].to_s + "mALL POSSIBLE RESULT:\033[0m\n \033[" +CONFIG["possible_result_content"].to_s + "m" + @all_result.join("\s"*2) + "\033[0m" unless @all_result.to_s.empty?
+    unless @all_result.to_s.empty?
+      colorful("ALL POSSIBLE RESULT:","possible_result_title")
+      colorful(@all_result.join("\s"*2),"possible_result_content")
+    end
   end
 
   def init
@@ -227,5 +230,10 @@ module  Yac
   def prepare_dir
     dirseparator = @file_path.rindex(File::Separator)+1
     FileUtils.mkdir_p(@file_path[0,dirseparator])
+  end
+
+  def colorful(stuff,level="text")
+    stuff.gsub!(/@@@(.*)@@@/,"\033[0m\033[#{CONFIG["empha"].to_s}m"+ '\1' + "\033[0m\033[#{CONFIG["#{level}"]}m")
+    puts "\033[%sm%s\033[0m\n" % [CONFIG["#{level}"],stuff]
   end
 end
