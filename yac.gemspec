@@ -1,5 +1,5 @@
 GEM = "yac"
-VER = "0.1.5"
+VER = "0.1.6"
 DATE = %q{2008-10-18}
 AUTHOR = "Jinzhu Zhang"
 EMAIL = "wosmvp@gmail.com"
@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
   s.autorequire = 'yac'
   s.executables = ["yac"]
  
-  s.files = %w[README.rdoc README.cn yac.gemspec resources/yacrc bin/yac lib/yac.rb]
+  s.files = %w[README.rdoc README.cn yac.gemspec resources/yacrc bin/yac lib/yac.rb lib/format.rb]
 
   #s.has_rdoc = true
   s.rdoc_options = ["--quiet", "--title", "YAC => Yet Another Cheat", "--opname", "index.html", "--line-numbers", "--main", "README.rdoc", "--inline-source"]
