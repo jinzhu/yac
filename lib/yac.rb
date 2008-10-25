@@ -1,6 +1,8 @@
-%w(rubygems git fileutils yaml).each {|f| require f}
+$:.unshift File.dirname(__FILE__)
+%w(rubygems git fileutils yaml format).each {|f| require f}
 
 module  Yac
+  include Format
   extend self
 
   YACRC = File.join("#{ENV['HOME']}",".yacrc")
@@ -31,7 +33,27 @@ module  Yac
     else show(args)
     end
     show_possible_result
-  #rescue
+  rescue
+  end
+
+  def init
+    FileUtils.mkdir_p(CONFIG['root'])
+    {"main" => @main_path,"private" => @pri_path}.each do |name,path|
+      unless File.exist?(path)
+        if CONFIG["#{name}"] && CONFIG["#{name}"]['clone-from']
+          puts "Initialize #{name} repository from #{CONFIG[name]['clone-from']} to #{CONFIG['root']}/#{name}"
+          Git.clone(CONFIG["#{name}"]['clone-from'], name, :path => CONFIG['root'])
+        else
+          puts "Initialize #{name} repository from scratch to #{CONFIG['root']}/#{name}"
+          git = Git.init(path)
+          git.add
+          git.commit_all("init #{name} repository")
+        end
+        puts "#{name} repository initialized."
+        @main_git = Git.open(@main_path) if File.exist?(@main_path)
+        @pri_git = Git.open(@pri_path)if File.exist?(@pri_path)
+      end
+    end
   end
 
   def show(args)
@@ -43,18 +65,14 @@ module  Yac
   end
 
   def update(args)
-    begin
-      unless args.empty?
-        @pri_git.pull if args.to_s =~ /pri/
+    unless args.empty?
+      @pri_git.pull if args.to_s =~ /pri/
         @main_git.pull if args.to_s =~ /main/
-      else
-        @main_git.pull
-        @pri_git.pull
-      end
-    rescue
-      puts "ERROR: can not update the repository,"
-      puts $!
+    else
+      @main_git.pull && @pri_git.pull
     end
+  rescue
+    puts "ERROR: can not update the repository,\n #{$!}"
   end
 
   def edit(args)
@@ -81,41 +99,6 @@ module  Yac
   end
 
   protected
-  def format_file(file)
-    @level = 0
-    case `file #{file}`
-    when / PDF /
-      puts "Please Modify ~/.yacrc To Provide A Valid Command To Open PDF Document" unless system("#{CONFIG["pdf_command"]||'evince'} #{file}")
-    when /( image )|(\.svg)/
-      puts "Please Modify ~/.yacrc To Provide A Valid Command To Open Image Document" unless system("#{CONFIG["pic_command"]||'eog'} #{file}")
-    else
-      File.new(file).each do |x|
-        format_section(x)
-      end
-    end
-  end
-
-  def format_section(section,search = false)
-    case section
-    when /^(=+)\s+(.*)/
-      @level = search ? 1 : $1.size
-      colorful("\s"*2*(@level-1) + $2,"head#{@level}")
-    when /^(\s*)#/
-    else
-      colorful(section.sub(/^\#/,"#").sub(/^\s*/, "\s" * @level * 2 ))
-    end
-  end
-
-  def full_path(args)
-    if args =~ /^@/
-      @file_path = @main_path + args.sub(/^@/,"") + ".ch"
-      @working_git = @main_git
-    else
-      @file_path = @pri_path + args + ".ch"
-      @working_git = @pri_git
-    end
-  end
-
   def rm_single(args)
     full_path(args)
     begin
@@ -132,10 +115,6 @@ module  Yac
     system("#{editor} #{@file_path}")
     @working_git.add
     @working_git.commit_all(" #{args.sub(/^@/,"")}.ch Updated")
-  end
-
-  def editor
-    CONFIG["editor"] || ENV['EDITOR'] || "vim"
   end
 
   def show_single(args)
@@ -167,61 +146,26 @@ module  Yac
       @main_result = @main_git.ls_files.keys.grep(/#{main}/)
     else
       @private_result = @pri_git.ls_files.keys.grep(/#{args}/)
-      @main_result = @main_git.ls_files.keys.grep(/#{args}/)
+        @main_result = @main_git.ls_files.keys.grep(/#{args}/)
     end
-    #ADD to all possible result
-    @all_result << @main_result.collect {|x| "@" + x}
-    @all_result << @private_result
+    @all_result << @main_result.collect {|x| "@" + x} << @private_result
 
-    #Remove duplicate files
     @private_result.map do |x|
       @main_result.delete(x)
     end
-    #Return full path
     return (@main_result.collect {|x| @main_path +x}).concat(@private_result.collect {|x| @pri_path +x})
   end
 
   def search_content(args)
-     result = `cd #{@pri_path} && grep -n #{args} -R *.ch 2>/dev/null`
-     result << `cd #{@main_path} && grep -n #{args} -R *.ch 2>/dev/null | sed 's/^/@/g'`
-     result.each do |x|
-       stuff = x.split(':',3)
-       colorful(title_of_file(stuff[0]),"filename",false)
-       print " "
-       colorful(stuff[1],"line_number",false)
-       print " "
-       format_section(empha(stuff[2],nil,/((#{args}))/),true)
-     end
-  end
-
-  def title_of_file(f)
-    f[0..((f.rindex('.')||0) - 1)]
-  end
-
-  def show_possible_result
-    unless @all_result.to_s.empty?
-      colorful("ALL POSSIBLE RESULT:","possible_result_title")
-      colorful(@all_result.join("\s"*2),"possible_result_content")
-    end
-  end
-
-  def init
-    FileUtils.mkdir_p(CONFIG['root'])
-    {"main" => @main_path,"private" => @pri_path}.each do |name,path|
-      unless File.exist?(path)
-        if CONFIG["#{name}"] && CONFIG["#{name}"]['clone-from']
-          puts "Initialize #{name} repository from #{CONFIG[name]['clone-from']} to #{CONFIG['root']}/#{name}"
-          Git.clone(CONFIG["#{name}"]['clone-from'], name, :path => CONFIG['root'])
-        else
-          puts "Initialize #{name} repository from scratch to #{CONFIG['root']}/#{name}"
-          git = Git.init(path)
-          git.add
-          git.commit_all("init #{name} repository")
-        end
-        puts "#{name} repository initialized."
-        @main_git = Git.open(@main_path) if File.exist?(@main_path)
-        @pri_git = Git.open(@pri_path)if File.exist?(@pri_path)
-      end
+    result = `cd #{@pri_path} && grep -n #{args} -R *.ch 2>/dev/null`
+    result << `cd #{@main_path} && grep -n #{args} -R *.ch 2>/dev/null | sed 's/^/@/g'`
+    result.each do |x|
+      stuff = x.split(':',3)
+      colorful(title_of_file(stuff[0]),"filename",false)
+      print " "
+      colorful(stuff[1],"line_number",false)
+      print " "
+      format_section(empha(stuff[2],nil,/((#{args}))/),true)
     end
   end
 
@@ -230,15 +174,13 @@ module  Yac
     FileUtils.mkdir_p(@file_path[0,dirseparator])
   end
 
-  def colorful(stuff,level="text",line_break = true)
-    stuff = empha(stuff,level)
-    print "\033[%sm%s\033[0m" % [CONFIG[level],stuff.rstrip]
-    print "\n" if line_break
-  end
-
-  def empha(stuff,level="text",empha_regexp=/(@@@(.*)@@@)/)
-    stuff.scan(empha_regexp) do |x|
-      return stuff.gsub(x[0],"\033[0m\033[#{CONFIG["empha"].to_s}m%s\033[0m\033[%sm" % [x[1],CONFIG[level]])
+  def full_path(args)
+    if args =~ /^@/
+      @file_path = @main_path + args.sub(/^@/,"") + ".ch"
+      @working_git = @main_git
+    else
+      @file_path = @pri_path + args + ".ch"
+      @working_git = @pri_git
     end
   end
 end
