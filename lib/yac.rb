@@ -31,7 +31,7 @@ module  Yac
     else show(args)
     end
     show_possible_result
-  rescue
+  #rescue
   end
 
   def show(args)
@@ -95,10 +95,10 @@ module  Yac
     end
   end
 
-  def format_section(section)
+  def format_section(section,search = false)
     case section
     when /^(=+)\s+(.*)/
-      @level = $1.size
+      @level = search ? 1 : $1.size
       colorful("\s"*2*(@level-1) + $2,"head#{@level}")
     when /^(\s*)#/
     else
@@ -167,7 +167,7 @@ module  Yac
       @main_result = @main_git.ls_files.keys.grep(/#{main}/)
     else
       @private_result = @pri_git.ls_files.keys.grep(/#{args}/)
-        @main_result = @main_git.ls_files.keys.grep(/#{args}/)
+      @main_result = @main_git.ls_files.keys.grep(/#{args}/)
     end
     #ADD to all possible result
     @all_result << @main_result.collect {|x| "@" + x}
@@ -190,7 +190,7 @@ module  Yac
        print " "
        colorful(stuff[1],"line_number",false)
        print " "
-       colorful(stuff[2],"text")
+       format_section(empha(stuff[2],nil,/((#{args}))/),true)
      end
   end
 
