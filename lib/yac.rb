@@ -145,7 +145,7 @@ module  Yac
       format_file(result.first)
     else
       result.map do |x|
-        if x =~ /\/#{args}\.\w+/
+        if x =~ /\/#{args.sub(/^@/,"")}\.\w+/
           colorful(x,"filename")
           format_file(x)
         end
@@ -182,18 +182,16 @@ module  Yac
   end
 
   def search_content(args)
-    @main_git.grep(args).each do |file, lines|
-      title = title_of_file(file.split(':')[1])
-      lines.each do |l|
-        puts "@#{title}:#{l[0]}:  #{l[1]}"
-      end
-    end
-    @pri_git.grep(args).each do |file, lines|
-      title = title_of_file(file.split(':')[1])
-      lines.each do |l|
-        puts "#{title}:#{l[0]}:  #{l[1]}"
-      end
-    end
+     result = `cd #{@pri_path} && grep -n #{args} -R *.ch 2>/dev/null`
+     result << `cd #{@main_path} && grep -n #{args} -R *.ch 2>/dev/null | sed 's/^/@/g'`
+     result.each do |x|
+       stuff = x.split(':',3)
+       colorful(title_of_file(stuff[0]),"filename",false)
+       print " "
+       colorful(stuff[1],"line_number",false)
+       print " "
+       colorful(stuff[2],"text")
+     end
   end
 
   def title_of_file(f)
@@ -232,8 +230,15 @@ module  Yac
     FileUtils.mkdir_p(@file_path[0,dirseparator])
   end
 
-  def colorful(stuff,level="text")
-    stuff.gsub!(/@@@(.*)@@@/,"\033[0m\033[#{CONFIG["empha"].to_s}m"+ '\1' + "\033[0m\033[#{CONFIG["#{level}"]}m")
-    puts "\033[%sm%s\033[0m\n" % [CONFIG["#{level}"],stuff]
+  def colorful(stuff,level="text",line_break = true)
+    stuff = empha(stuff,level)
+    print "\033[%sm%s\033[0m" % [CONFIG[level],stuff.rstrip]
+    print "\n" if line_break
+  end
+
+  def empha(stuff,level="text",empha_regexp=/(@@@(.*)@@@)/)
+    stuff.scan(empha_regexp) do |x|
+      return stuff.gsub(x[0],"\033[0m\033[#{CONFIG["empha"].to_s}m%s\033[0m\033[%sm" % [x[1],CONFIG[level]])
+    end
   end
 end
