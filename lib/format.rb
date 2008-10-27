@@ -1,6 +1,7 @@
 module Format
-  Pdf_Error = "Please Modify ~/.yacrc To Provide A Valid Command To Open PDF Document"
-  Image_Error = "Please Modify ~/.yacrc To Provide A Valid Command To Open Image Document"
+  Pdf_Error = "Please Modify ~/.yacrc To Provide A Valid Command To Operate PDF Document"
+  Image_Error = "Please Modify ~/.yacrc To Provide A Valid Command To Operate Image Document"
+  Doc_Error = "Please Modify ~/.yacrc To Provide A Valid Command To Operate Text Document"
 
   def format_file(file)
     @level = 0
@@ -14,6 +15,7 @@ module Format
         format_section(x)
       end
     end
+  rescue
   end
 
   def format_section(section,search = false)
@@ -27,12 +29,19 @@ module Format
     end
   end
 
-  def editor
-    Yac::CONFIG["editor"] || ENV['EDITOR'] || "vim"
+  def edit_file(file)
+    case `file #{file}`
+    when / PDF /
+      puts Pdf_Error unless system("#{Yac::CONFIG["pdf_edit_command"]||'ooffice'} #{file}")
+    when /( image )|(\.svg)/
+      puts Image_Error unless system("#{Yac::CONFIG["image_edit_command"]||'gimp'} #{file}")
+    else
+      puts Image_Error unless system("#{Yac::CONFIG["editor"] || ENV['EDITOR'] ||'gimp'} #{file}")
+    end
   end
 
-  def title_of_file(f)
-    f[0..((f.rindex('.')||0) - 1)]
+  def clean_filename(f)
+    return f.sub(/^(.*)?(main|private)\/(.*)/,'\3').sub(/^@/,'')
   end
 
   def colorful(stuff,level="text",line_break = true)
@@ -42,15 +51,8 @@ module Format
   end
 
   def empha(stuff,level="text",empha_regexp=/(@@@(.*)@@@)/)
-    stuff.scan(empha_regexp) do |x|
+    stuff.to_s.scan(empha_regexp) do |x|
       return stuff.gsub(x[0],"\033[0m\033[#{Yac::CONFIG["empha"].to_s}m%s\033[0m\033[%sm" % [x[1],Yac::CONFIG[level]])
-    end
-  end
-
-  def show_possible_result
-    unless @all_result.to_s.empty?
-      colorful("ALL POSSIBLE RESULT:","possible_result_title")
-      colorful(@all_result.join("\s"*2),"possible_result_content")
     end
   end
 end

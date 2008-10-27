@@ -18,12 +18,10 @@ module  Yac
     unless File.exist?(@main_path) && File.exist?(@pri_path)
       return unless init
     end
-    @all_result = []
     (help && exit) if args.empty?
     case args.first
     when "show" then show(args[1,args.size])
-    when "name" then search(args[1,args.size],"name")
-    when "content" then search(args[1,args.size],"content")
+    when "search" then search(args[1,args.size])
     when "update" then update(args[1,args.size])
     when /^(add|edit)$/ then edit(args[1,args.size])
     when /^(help|-h|yac|--help)$/ then help
@@ -32,7 +30,6 @@ module  Yac
     when "init" then init
     else show(args)
     end
-    show_possible_result
   #rescue
   end
 
@@ -60,8 +57,8 @@ module  Yac
     args.each {|x| show_single(x)}
   end
 
-  def search(args,type = "name")
-    args.each {|x| search_single(x,type)}
+  def search(args)
+    args.each {|x| search_content(x)}
   end
 
   def update(args)
@@ -99,62 +96,43 @@ module  Yac
   end
 
   protected
+
+  def show_single(args)
+    file = search_name(args)
+    format_file(file)
+  end
+
   def rm_single(args)
-    full_path(args)
-    confirm("You are removing #@file_path")
+    file = search_name(args)
+    confirm("You are removing #{file}.")
     begin
-      @working_git.remove(@file_path)
-      @working_git.commit_all("#{args.sub(/^@/,"")}.ch removed")
+      @working_git.remove(file)
+      @working_git.commit_all("#{clean_filename(file)} was removed")
     rescue Git::GitExecuteError
-      FileUtils.rm_rf(@file_path)
+      FileUtils.rm_rf(file)
     end
   end
 
   def edit_single(args)
-    full_path(args)
-    prepare_dir
-    system("#{editor} #{@file_path}")
+    file = search_name(args)
+    edit_file(file)
     @working_git.add
-    @working_git.commit_all(" #{args.sub(/^@/,"")}.ch Updated")
-  end
-
-  def show_single(args)
-    result = search_single(args)
-    if result.size == 1
-      colorful(result.first,"filename")
-      format_file(result.first)
-    else
-      result.map do |x|
-        if x =~ /\/#{args.sub(/^@/,"")}\.\w+/
-          colorful(x,"filename")
-          format_file(x)
-        end
-      end
-    end
-  end
-
-  def search_single(args,type="name")
-    if type =~ /name/
-      search_name(args)
-    else
-      search_content(args)
-    end
+    @working_git.commit_all("#{clean_filename(file)} Updated")
   end
 
   def search_name(args)
+    reg_main = @main_path.gsub(/\//,'\/')
+    reg_pri =  @pri_path.gsub(/\//,'\/')
+
     if args =~ /^@/ && main = args.sub(/^@/,"")
       @private_result = []
-      @main_result = @main_git.ls_files.keys.grep(/#{main}/)
+      @main_result = `find #{@main_path} -type f -iwholename *#{main}* -not -iwholename *.git*| sed 's/^#{reg_main}/@/'`.to_a
     else
-      @private_result = @pri_git.ls_files.keys.grep(/#{args}/)
-        @main_result = @main_git.ls_files.keys.grep(/#{args}/)
+      @private_result = `find #{@pri_path} -type f -iwholename *#{args}* -not -iwholename *.git*| sed 's/^#{reg_pri}//'`.to_a
+      @main_result = `find #{@main_path} -type f -iwholename *#{args}*  -not -iwholename *.git*| sed 's/^#{reg_main}/@/'`.to_a
     end
-    @all_result << @main_result.collect {|x| "@" + x} << @private_result
 
-    @private_result.map do |x|
-      @main_result.delete(x)
-    end
-    return (@main_result.collect {|x| @main_path +x}).concat(@private_result.collect {|x| @pri_path +x})
+    return full_path(choose_one(@main_result.concat(@private_result)))
   end
 
   def search_content(args)
@@ -162,7 +140,7 @@ module  Yac
     result << `cd #{@main_path} && grep -n #{args} -R *.ch 2>/dev/null | sed 's/^/@/g'`
     result.each do |x|
       stuff = x.split(':',3)
-      colorful(title_of_file(stuff[0]),"filename",false)
+      colorful(clean_filename(stuff[0]),"filename",false)
       print " "
       colorful(stuff[1],"line_number",false)
       print " "
@@ -170,21 +148,23 @@ module  Yac
     end
   end
 
-  def prepare_dir
-    dirseparator = @file_path.rindex(File::Separator)+1
-    FileUtils.mkdir_p(@file_path[0,dirseparator])
-  end
+#  def prepare_dir
+#    dirseparator = @file_path.rindex(File::Separator)+1
+#    FileUtils.mkdir_p(@file_path[0,dirseparator])
+#  end
 
   def full_path(args)
     if args =~ /^@/
-      @file_path = @main_path + args.sub(/^@/,"") + ".ch"
+      file = @main_path + args.sub(/^@/,"") #FIXME Remove .ch suffix add edit should not work
       @working_git = @main_git
     else
-      @file_path = @pri_path + args + ".ch"
+      file = @pri_path + args
       @working_git = @pri_git
     end
+    return file
   end
 
+  # To confirm Operate OR Not
   def confirm(*msg)
     colorful("#{msg.to_s} Are You Sure (Y/N):","notice",false)
     case STDIN.gets
@@ -196,5 +176,33 @@ module  Yac
       colorful("Please Input A Valid String,","warn")
       confirm(msg)
     end
+  end
+
+  # Choose one file to operate
+  def choose_one(stuff)
+    if stuff.size == 1
+      return stuff[0]
+    elsif stuff.size > 1
+      stuff.each_index do |x|
+        colorful("%2s" % (x+1).to_s,"line_number",false)
+        printf " %-20s \t" % [stuff[x].rstrip]
+        print "\n" if (x+1)%4 == 0
+      end
+      printf "\n"
+      num = choose_range(stuff.size)
+      return stuff[num-1].to_s.strip
+    else
+      colorful("Nothing Found","warn")
+      exit
+    end
+  rescue #Rescue for user input q to quit
+  end
+
+  #choose a valid range TODO Q to quit
+  def choose_range(size)
+    colorful("Please Input A Valid Number (1..#{size}) (Q to quit): ","notice",false)
+    num = STDIN.gets
+    return if num =~ /q/i
+    (1..size).member?(num.to_i) ? (return num.to_i) : choose_range(size)
   end
 end
