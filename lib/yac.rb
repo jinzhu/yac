@@ -23,10 +23,12 @@ module  Yac
     when "show" then show(args[1,args.size])
     when "search" then search(args[1,args.size])
     when "update" then update(args[1,args.size])
-    when /^(add|edit)$/ then edit(args[1,args.size])
+    when "add" then add(args[1,args.size])
+    when "edit" then edit(args[1,args.size])
     when /^(help|-h|yac|--help)$/ then help
     when /^(sh|shell)$/ then shell(args[1,args.size])
     when "rm" then rm(args[1,args.size])
+    when "mv" then rename(args[1,args.size])
     when "init" then init
     else show(args)
     end
@@ -76,6 +78,10 @@ module  Yac
     args.each {|x| edit_single(x)}
   end
 
+  def add(args)
+    args.each {|x| add_single(x)}
+  end
+
   def rm(args)
     args.each {|x| rm_single(x)}
   end
@@ -95,7 +101,21 @@ module  Yac
     end
   end
 
+  def rename(args)
+    (colorful("Usage:\nyac mv [orign_name] [new_name]\n\nTry `yac -h` for more help","warn");exit) unless args.size == 2
+    file = search_name(args[0],"Rename")
+    new_name = file.sub(/^((?:.*)?(?:main|private)\/)(.*)(\..*)/,'\1'+args[1]+'\3')
+    confirm("You Are Renaming #{file} To #{new_name}")
+    if `mv #{file} #{new_name}`
+      @working_git.add
+      @working_git.commit_all("#{clean_filename(file)} Renamed to #{clean_filename(new_name)}")
+    end
+  end
+
   protected
+  def add_single(args)
+     #FIXME Remove .ch suffix add edit should not work
+  end
 
   def show_single(args)
     file = search_name(args,"Show")
@@ -155,7 +175,7 @@ module  Yac
 
   def full_path(args)
     if args =~ /^@/
-      file = @main_path + args.sub(/^@/,"") #FIXME Remove .ch suffix add edit should not work
+      file = @main_path + args.sub(/^@/,"")
       @working_git = @main_git
     else
       file = @pri_path + args
@@ -166,9 +186,9 @@ module  Yac
 
   # To confirm Operate OR Not
   def confirm(*msg)
-    colorful("#{msg.to_s} Are You Sure (Y/N):","notice",false)
+    colorful("#{msg.to_s}\nAre You Sure (Y/N) (Q to quit):","notice",false)
     case STDIN.gets
-    when /n/i
+    when /n|q/i
       exit
     when /y/i
       return true
@@ -195,7 +215,7 @@ module  Yac
   rescue #Rescue for user input q to quit
   end
 
-  #choose a valid range TODO Q to quit
+  #choose a valid range
   def choose_range(size)
     colorful("Please Input A Valid Number To Choose (1..#{size}) (Q to quit): ","notice",false)
     num = STDIN.gets
