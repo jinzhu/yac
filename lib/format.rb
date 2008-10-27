@@ -5,7 +5,7 @@ module Format
 
   def format_file(file)
     @level = 0
-    case `file #{file}`
+    case `file #{file} 2&>/dev/null`
     when / PDF /
       puts Pdf_Error unless system("#{Yac::CONFIG["pdf_command"]||'evince'} #{file}")
     when /( image )|(\.svg)/
@@ -30,7 +30,7 @@ module Format
   end
 
   def edit_file(file)
-    case `file #{file}`
+    case `file #{file} 2&>/dev/null`
     when / PDF /
       puts Pdf_Error unless system("#{Yac::CONFIG["pdf_edit_command"]||'ooffice'} #{file}")
     when /( image )|(\.svg)/

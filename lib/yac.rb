@@ -98,12 +98,12 @@ module  Yac
   protected
 
   def show_single(args)
-    file = search_name(args)
+    file = search_name(args,"Show")
     format_file(file)
   end
 
   def rm_single(args)
-    file = search_name(args)
+    file = search_name(args,"Remove")
     confirm("You are removing #{file}.")
     begin
       @working_git.remove(file)
@@ -114,16 +114,16 @@ module  Yac
   end
 
   def edit_single(args)
-    file = search_name(args)
+    file = search_name(args,"Edit")
     edit_file(file)
     @working_git.add
     @working_git.commit_all("#{clean_filename(file)} Updated")
   end
 
-  def search_name(args)
+  def search_name(args,msg = nil)
     reg_main = @main_path.gsub(/\//,'\/')
     reg_pri =  @pri_path.gsub(/\//,'\/')
-
+    colorful("The Results About < #{args} > To #{msg || "Operate"} :","notice")
     if args =~ /^@/ && main = args.sub(/^@/,"")
       @private_result = []
       @main_result = `find #{@main_path} -type f -iwholename *#{main}* -not -iwholename *.git*| sed 's/^#{reg_main}/@/'`.to_a
@@ -131,8 +131,8 @@ module  Yac
       @private_result = `find #{@pri_path} -type f -iwholename *#{args}* -not -iwholename *.git*| sed 's/^#{reg_pri}//'`.to_a
       @main_result = `find #{@main_path} -type f -iwholename *#{args}*  -not -iwholename *.git*| sed 's/^#{reg_main}/@/'`.to_a
     end
-
-    return full_path(choose_one(@main_result.concat(@private_result)))
+    result = @main_result.concat(@private_result)
+    return result.empty? ? (colorful("Nothing Found About < #{args} >","warn")) : full_path(choose_one(result))
   end
 
   def search_content(args)
@@ -191,16 +191,13 @@ module  Yac
       printf "\n"
       num = choose_range(stuff.size)
       return stuff[num-1].to_s.strip
-    else
-      colorful("Nothing Found","warn")
-      exit
     end
   rescue #Rescue for user input q to quit
   end
 
   #choose a valid range TODO Q to quit
   def choose_range(size)
-    colorful("Please Input A Valid Number (1..#{size}) (Q to quit): ","notice",false)
+    colorful("Please Input A Valid Number To Choose (1..#{size}) (Q to quit): ","notice",false)
     num = STDIN.gets
     return if num =~ /q/i
     (1..size).member?(num.to_i) ? (return num.to_i) : choose_range(size)
