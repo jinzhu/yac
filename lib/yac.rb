@@ -33,7 +33,7 @@ module  Yac
     else show(args)
     end
     show_possible_result
-  rescue
+  #rescue
   end
 
   def init
@@ -101,6 +101,7 @@ module  Yac
   protected
   def rm_single(args)
     full_path(args)
+    confirm("You are removing #@file_path")
     begin
       @working_git.remove(@file_path)
       @working_git.commit_all("#{args.sub(/^@/,"")}.ch removed")
@@ -181,6 +182,19 @@ module  Yac
     else
       @file_path = @pri_path + args + ".ch"
       @working_git = @pri_git
+    end
+  end
+
+  def confirm(*msg)
+    colorful("#{msg.to_s} Are You Sure (Y/N):","notice",false)
+    case STDIN.gets
+    when /n/i
+      exit
+    when /y/i
+      return true
+    else
+      colorful("Please Input A Valid String,","warn")
+      confirm(msg)
     end
   end
 end

@@ -8,7 +8,7 @@ private:
 #   push-to:
 
 #pdf_command: evince
-#pic_command: evince
+#image_command: evince
 #editor: vim
 
 #Set Color
@@ -43,6 +43,8 @@ head5: 0;31;40
 head6: 0;31;40
 head7: 0;31;40
 
+warn: 31
+notice: 33
 empha: 32;40
 possible_result_title: 33;41
 possible_result_content: 31

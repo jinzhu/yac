@@ -8,7 +8,7 @@ module Format
     when / PDF /
       puts Pdf_Error unless system("#{Yac::CONFIG["pdf_command"]||'evince'} #{file}")
     when /( image )|(\.svg)/
-      puts Image_Error unless system("#{Yac::CONFIG["pic_command"]||'eog'} #{file}")
+      puts Image_Error unless system("#{Yac::CONFIG["image_command"]||'eog'} #{file}")
     else
       File.new(file).each do |x|
         format_section(x)
@@ -23,7 +23,7 @@ module Format
       colorful("\s"*2*(@level-1) + $2,"head#{@level}")
     when /^(\s*)#/
     else
-      colorful(section.sub(/^\#/,"#").sub(/^\s*/, "\s" * @level * 2 ))
+      colorful(section.sub(/^\#/,"#").sub(/^\s*/, "\s" * ( @level||0 ) * 2 ))
     end
   end
 
