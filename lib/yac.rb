@@ -23,6 +23,7 @@ module  Yac
     when "show" then show(args[1,args.size])
     when "search" then search(args[1,args.size])
     when "update" then update(args[1,args.size])
+    when "push" then push(args[1,args.size])
     when "add" then add(args[1,args.size])
     when "edit" then edit(args[1,args.size])
     when /^(help|-h|yac|--help)$/ then help
@@ -64,14 +65,26 @@ module  Yac
   end
 
   def update(args)
-    unless args.empty?
-      @pri_git.pull if args.to_s =~ /pri/
-        @main_git.pull if args.to_s =~ /main/
-    else
-      @main_git.pull && @pri_git.pull
+    case args.to_s
+    when /main/ then result = `cd #{@main_path} && git pull `  #NOTE There is an bug in the git.gem,Then I will write a new git library use shell command
+    when /all/  then result = `cd #{@pri_path} && git pull && cd #{@main_path} && git pull `
+    else result = `cd #{@pri_path} && git pull`
     end
+    colorful(result,"notice")
   rescue
     puts "ERROR: can not update the repository,\n #{$!}"
+  end
+
+  def push(args)
+    case args.to_s
+    when /main/ then result=@main_git.push
+    when /all/  then result=@pri_git.push && result << @main_git.push
+    else result = @pri_git.push
+    end
+    colorful(result,"notice")
+  rescue
+    colorful("Usage:\n`yac push ( main | all )\n\nTry `yac -h` for more help","warn")
+    puts $!
   end
 
   def edit(args)
@@ -171,11 +184,11 @@ module  Yac
   end
 
   def search_content(args)
-    result = `cd #{@pri_path} && grep -n #{args} -R *.ch 2>/dev/null`
-    result << `cd #{@main_path} && grep -n #{args} -R *.ch 2>/dev/null | sed 's/^/@/g'`
+    result = `cd #{@pri_path} && grep -n #{args} -R *.ch 2>/dev/null`.to_a
+    result.concat(`cd #{@main_path} && grep -n #{args} -R *.ch 2>/dev/null | sed 's/^/@/g'`.to_a)
     result.each do |x|
       stuff = x.split(':',3)
-      colorful(clean_filename(stuff[0]),"filename",false)
+      colorful(stuff[0],"filename",false)
       print " "
       colorful(stuff[1],"line_number",false)
       print " "

@@ -4,7 +4,7 @@ DATE = %q{2008-10-18}
 AUTHOR = "Jinzhu Zhang"
 EMAIL = "wosmvp@gmail.com"
 HOMEPAGE = "http://www.zhangjinzhu.com"
-SUMMARY = "Yet Another Cheat"
+SUMMARY = "Yet Another Cheat: sexy command line tool for cheat sheet"
  
 Gem::Specification.new do |s|
 

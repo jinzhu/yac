@@ -4,12 +4,15 @@ main:
   clone-from: git://github.com/wosmvp/cheat.git
 #  push-to:
 private:
-#   clone-from:
-#   push-to:
+#  clone-from:
+#  push-to:
 
-#pdf_command: evince
+
+pdf_command: apvlv
 #image_command: evince
 #editor: vim
+#pdf_edit_command: ooffice
+#image_edit_command: gimp
 
 #Set Color
 #1   -   Change text to hicolor (bold) mode
@@ -45,9 +48,9 @@ head7: 0;31;40
 
 warn: 31
 notice: 33
-empha: 32;40
-possible_result_title: 33;41
+empha: 32;41
+possible_result_title: 31;43
 possible_result_content: 31
-filename: 31
+filename: 33
 line_number: 32
 text:
