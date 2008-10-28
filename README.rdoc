@@ -9,7 +9,7 @@
 == How To Use
 
 === To initialize repositories:
-    $ yac init
+    When you run any command,The repositories will be initialize automatically.
 
 === To show a cheat sheet:
     $ yac (show) [cheatsheet] ( you can use * for any chars)

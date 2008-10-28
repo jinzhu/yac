@@ -5,7 +5,7 @@ module Format
 
   def format_file(file)
     @level = 0
-    colorful(file,"filename")
+    colorful(file,"filename") if file
     case `file #{file} 2&>/dev/null`
     when / PDF /
       puts Pdf_Error unless system("#{Yac::CONFIG["pdf_command"]||'evince'} #{file}")

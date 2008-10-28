@@ -15,9 +15,7 @@ module  Yac
   @pri_git = Git.open(@pri_path)if File.exist?(@pri_path)
 
   def new(args)
-    unless File.exist?(@main_path) && File.exist?(@pri_path)
-      return unless init
-    end
+    init unless File.exist?(@main_path) && File.exist?(@pri_path)
     (help && exit) if args.empty?
     case args.first
     when "show" then show(args[1,args.size])
@@ -30,7 +28,6 @@ module  Yac
     when "sh" then shell(args[1,args.size])
     when "rm" then rm(args[1,args.size])
     when "mv" then rename(args[1,args.size])
-    when "init" then init
     else show(args)
     end
   rescue
@@ -39,17 +36,16 @@ module  Yac
   def init
     FileUtils.mkdir_p(CONFIG['root'])
     {"main" => @main_path,"private" => @pri_path}.each do |name,path|
-      unless File.exist?(path)
+      if File.exist?(path)
+        colorful("#{name} repository has already initialized.","notice")
+      else
         if CONFIG["#{name}"] && CONFIG["#{name}"]['clone-from']
-          puts "Initialize #{name} repository from #{CONFIG[name]['clone-from']} to #{CONFIG['root']}/#{name}"
+          colorful("Initialize #{name} repository from #{CONFIG[name]['clone-from']} to #{CONFIG['root']}/#{name}","notice")
           Git.clone(CONFIG["#{name}"]['clone-from'], name, :path => CONFIG['root'])
         else
-          puts "Initialize #{name} repository from scratch to #{CONFIG['root']}/#{name}"
-          git = Git.init(path)
-          git.add
-          git.commit_all("init #{name} repository")
+          colorful("Initialize #{name} repository from scratch to #{CONFIG['root']}/#{name}","notice")
+          Git.init(path)
         end
-        puts "#{name} repository initialized."
         @main_git = Git.open(@main_path) if File.exist?(@main_path)
         @pri_git = Git.open(@pri_path)if File.exist?(@pri_path)
       end
