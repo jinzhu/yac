@@ -62,13 +62,13 @@ module  Yac
 
   def update(args)
     case args.to_s
-    when /main/ then result = `cd #{@main_path} && git pull `  #NOTE There is an bug in the git.gem,Then I will write a new git library use shell command
-    when /all/  then result = `cd #{@pri_path} && git pull && cd #{@main_path} && git pull `
-    else result = `cd #{@pri_path} && git pull`
+    when /main/ then result = `cd "#{@main_path}" && git pull `  #NOTE There is an bug in the git.gem,Then I will write a new git library use shell command
+    when /all/  then result = `cd "#{@pri_path}" && git pull && cd "#{@main_path}" && git pull `
+    else result = `cd "#{@pri_path}" && git pull`
     end
     colorful(result,"notice")
   rescue
-    puts "ERROR: can not update the repository,\n #{$!}"
+    colorful("ERROR: can not update the repository,\n\n#{$!}","warn")
   end
 
   def push(args)
@@ -79,8 +79,7 @@ module  Yac
     end
     colorful(result,"notice")
   rescue
-    colorful("Usage:\n`yac push ( main | all )\n\nTry `yac -h` for more help","warn")
-    puts $!
+    colorful("Usage:\nyac push ( main | all )\n\nTry `yac -h` for more help\n\n#{$1}","warn")
   end
 
   def edit(args)
@@ -102,11 +101,11 @@ module  Yac
   def shell(args)
     case args.to_s
     when /main/
-      colorful(" Welcome To The Main Yac Repository","head1")
-      system "cd #{@main_path}; sh"
+      colorful(" Welcome To The Main Yac Repository","notice")
+      system "cd \"#{@main_path}\"; sh"
     else
-      colorful(" Welcome To The Private Yac Repository","head1")
-      system "cd #{@pri_path}; sh"
+      colorful(" Welcome To The Private Yac Repository","notice")
+      system "cd \"#{@pri_path}\"; sh"
     end
   end
 
@@ -114,8 +113,8 @@ module  Yac
     (colorful("Usage:\nyac mv [orign_name] [new_name]\n\nTry `yac -h` for more help","warn");exit) unless args.size == 2
     file = search_name(args[0],"Rename")
     new_name = file.sub(/^((?:.*)?(?:main|private)\/)(.*)(\..*)/,'\1'+args[1]+'\3')
-    confirm("You Are Renaming #{file} To #{new_name}")
-    if `mv #{file} #{new_name}`
+    if confirm("You Are Renaming #{file} To #{new_name}")
+      `mv "#{file}" "#{new_name}"`
       @working_git.add
       @working_git.commit_all("#{clean_filename(file)} Renamed to #{clean_filename(new_name)}")
     end
@@ -128,15 +127,16 @@ module  Yac
       all_path = %x{
         find #{path} -type d -iwholename '#{path}*#{$2}*' -not -iwholename '*.git*'| sed 's/^.*\\(private\\|main\\)\\//#{$1}/'
       }.to_a
-      colorful("Which directory do you want to use :","notice")
+      colorful("Which directory do you want to use:","notice")
       choosed_path = choose_one(all_path.concat([$1+$2]).uniq)
       args = choosed_path + "/" + $3 if choosed_path
     end
     file = full_path(args+".ch")
-    confirm("You Are Adding #{file}")
-    edit_text(file)
-    @working_git.add
-    @working_git.commit_all("#{clean_filename(file)} Added")
+    if confirm("You Are Adding #{file}")
+      edit_text(file)
+      @working_git.add
+      @working_git.commit_all("#{clean_filename(file)} Added")
+    end
   end
 
   def show_single(args)
@@ -146,12 +146,13 @@ module  Yac
 
   def rm_single(args)
     file = search_name(args,"Remove")
-    confirm("You are removing #{file}.")
-    begin
-      @working_git.remove(file)
-      @working_git.commit_all("#{clean_filename(file)} was removed")
-    rescue Git::GitExecuteError
-      FileUtils.rm_rf(file)
+    if confirm("You Are Removing #{file}.")
+      begin
+        @working_git.remove(file)
+        @working_git.commit_all("#{clean_filename(file)} Removed")
+      rescue Git::GitExecuteError
+        FileUtils.rm_rf(file)
+      end
     end
   end
 
@@ -166,7 +167,7 @@ module  Yac
     path = (args =~ /^(@)/) ? [@main_path] : [@main_path , @pri_path]
     result = []
     path.each do |x|
-      result.concat(`find #{x} -type f -iwholename '#{x}*#{args.sub(/^@/,'').strip}*' -not -iwholename '*.git*'| sed 's/^.*\\(private\\|main\\)\\//#{x=~/main/ ? '@':'' }/'`.to_a)
+      result.concat(`find "#{x}" -type f -iwholename '#{x}*#{args.sub(/^@/,'').strip}*' -not -iwholename '*.git*'| sed 's/^.*\\(private\\|main\\)\\//#{x=~/main/ ? '@':'' }/'`.to_a)
     end
     return result.empty? ? (colorful("Nothing Found About < #{args} >","warn")) :
       (colorful("The Results About < #{args} > To #{msg || "Operate"} :","notice");full_path(choose_one(result)))
@@ -174,8 +175,8 @@ module  Yac
 
   def search_content(args)
     args.sub!(/^"(.*)"/,'\1')
-    result = `cd #{@pri_path} && grep -n -i -P '#{args}' -R *.ch 2>/dev/null`.to_a
-    result.concat(`cd #{@main_path} && grep -n -i -P '#{args}' -R *.ch 2>/dev/null | sed 's/^/@/g'`.to_a)
+    result = `cd "#{@pri_path}" && grep -n -i -P '#{args}' -R *.ch 2>/dev/null`.to_a
+    result.concat(`cd "#{@main_path}" && grep -n -i -P '#{args}' -R *.ch 2>/dev/null | sed 's/^/@/g'`.to_a)
     all_result = []
     result.each do |x|
       stuff = x.split(':',3)
@@ -187,31 +188,29 @@ module  Yac
       all_result.concat(stuff[0].to_a)
     end
     loop do
-      colorful("All files contain #{args.strip},choose one to show","notice")
+      colorful("All files Contain #{args.strip},Choose one to show","notice")
       file =  full_path(choose_one(all_result))
-      exit unless file
-      format_file(file)
+      file ? format_file(file) : exit
     end
   end
 
   def full_path(args)
     return false unless args
     if args =~ /^@/
-      file = @main_path + args.sub(/^@/,"")
       @working_git = @main_git
+      file = @main_path + args.sub(/^@/,"")
     else
-      file = @pri_path + args.to_s
       @working_git = @pri_git
+      file = @pri_path + args
     end
     return file.strip
   end
 
-  # To confirm Operate OR Not
   def confirm(*msg)
     colorful("#{msg.to_s}\nAre You Sure (Y/N) (q to quit):","notice",false)
     case STDIN.gets
     when /n|q/i
-      exit
+      return false
     when /y/i
       return true
     else

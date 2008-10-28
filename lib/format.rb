@@ -6,11 +6,11 @@ module Format
   def format_file(file)
     @level = 0
     colorful(file,"filename") if file
-    case `file #{file} 2&>/dev/null`
-    when / PDF /
-      puts Pdf_Error unless system("#{Yac::CONFIG["pdf_command"]||'evince'} #{file}")
+    case `file "#{file}" 2>/dev/null`
+    when / PDF document/
+      puts Pdf_Error unless system("#{Yac::CONFIG["pdf_command"]||'evince'} \"#{file}\" 2>/dev/null")
     when /( image )|(\.svg)/
-      puts Image_Error unless system("#{Yac::CONFIG["image_command"]||'eog'} #{file}")
+      puts Image_Error unless system("#{Yac::CONFIG["image_command"]||'eog'} \"#{file}\" 2>/dev/null")
     else
       File.new(file).each do |x|
         format_section(x)
@@ -32,11 +32,11 @@ module Format
   end
 
   def edit_file(file)
-    case `file #{file} 2&>/dev/null`
+    case `file "#{file}" 2>/dev/null`
     when / PDF /
-      puts Pdf_Error unless system("#{Yac::CONFIG["pdf_edit_command"]||'ooffice'} #{file}")
+      puts Pdf_Error unless system("#{Yac::CONFIG["pdf_edit_command"]||'ooffice'} \"#{file}\" 2>/dev/null")
     when /( image )|(\.svg)/
-      puts Image_Error unless system("#{Yac::CONFIG["image_edit_command"]||'gimp'} #{file}")
+      puts Image_Error unless system("#{Yac::CONFIG["image_edit_command"]||'gimp'} \"#{file}\" 2>/dev/null")
     else
       edit_text(file)
     end
@@ -44,7 +44,7 @@ module Format
 
   def edit_text(file)
     prepare_dir(file)
-    puts Doc_Error unless system("#{Yac::CONFIG["editor"] || ENV['EDITOR'] ||'vim'} #{file}")
+    puts Doc_Error unless system("#{Yac::CONFIG["editor"] || ENV['EDITOR'] ||'vim'} \"#{file}\" 2>/dev/null")
   end
 
   def clean_filename(f)

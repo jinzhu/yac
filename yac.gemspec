@@ -1,6 +1,6 @@
 GEM = "yac"
 VER = "0.1.6"
-DATE = %q{2008-10-18}
+DATE = %q{2008-10-28}
 AUTHOR = "Jinzhu Zhang"
 EMAIL = "wosmvp@gmail.com"
 HOMEPAGE = "http://www.zhangjinzhu.com"
