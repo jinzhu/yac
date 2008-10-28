@@ -3,7 +3,7 @@
 
 == What?
   Cheat sheet is a concise set of notes used for quick reference.
-  YAC is a simple sexy command line tool for easy control cheatsheet.
+  YAC is a simple sexy command line tool for easy control cheatsheet.(Images can be found here: http://picasaweb.google.com/wosmvp/YacYetAnotherCheat)
   Yes,It's support Image,PDF,Text, and can be easily enhance :)
   Install, Use, Enjoy :)
 
