@@ -27,13 +27,13 @@ module  Yac
     when "add" then add(args[1,args.size])
     when "edit" then edit(args[1,args.size])
     when /^(help|-h|yac|--help)$/ then help
-    when /^(sh|shell)$/ then shell(args[1,args.size])
+    when "sh" then shell(args[1,args.size])
     when "rm" then rm(args[1,args.size])
     when "mv" then rename(args[1,args.size])
     when "init" then init
     else show(args)
     end
-  #rescue
+  rescue
   end
 
   def init
@@ -129,7 +129,9 @@ module  Yac
   def add_single(args)
     if args.include?('/') && args =~ /(@?)(?:(.*)\/)(.+)/
       path = $1.empty? ? @pri_path : @main_path
-      all_path = `find #{path} -type d -iwholename '*#{$2}*' -not -iwholename '*.git*'| sed 's/^#{regex_protect(path)}/#{$1}/'`.to_a
+      all_path = %x{
+        find #{path} -type d -iwholename '#{path}*#{$2}*' -not -iwholename '*.git*'| sed 's/^.*\\(private\\|main\\)\\//#{$1}/'
+      }.to_a
       colorful("Which directory do you want to use :","notice")
       choosed_path = choose_one(all_path.concat([$1+$2]).uniq)
       args = choosed_path + "/" + $3 if choosed_path
@@ -165,28 +167,19 @@ module  Yac
   end
 
   def search_name(args,msg = nil)
-    if args =~ /^@/ && main = args.sub(/^@/,"")
-      @private_result = []
-      @main_result = %x{
-        find #{@main_path} -type f -iwholename "*#{main}*" -not -iwholename "*.git*"| sed 's/^#{regex_protect(@main_path)}/@/'
-      }.to_a
-    else
-      @private_result = %x{
-        find #{@pri_path} -type f -iwholename "*#{args}*" -not -iwholename "*.git*"| sed 's/^#{regex_protect(@pri_path)}//'
-      }.to_a
-
-      @main_result = %x{
-        find #{@main_path} -type f -iwholename "*#{args}*"  -not -iwholename "*.git*"| sed 's/^#{regex_protect(@main_path)}/@/'
-      }.to_a
+    path = (args =~ /^(@)/) ? [@main_path] : [@main_path , @pri_path]
+    result = []
+    path.each do |x|
+      result.concat(`find #{x} -type f -iwholename '#{x}*#{args.sub(/^@/,'').strip}*' -not -iwholename '*.git*'| sed 's/^.*\\(private\\|main\\)\\//#{x=~/main/ ? '@':'' }/'`.to_a)
     end
-    result = @main_result.concat(@private_result)
     return result.empty? ? (colorful("Nothing Found About < #{args} >","warn")) :
       (colorful("The Results About < #{args} > To #{msg || "Operate"} :","notice");full_path(choose_one(result)))
   end
 
   def search_content(args)
-    result = `cd #{@pri_path} && grep -n #{args} -R *.ch 2>/dev/null`.to_a
-    result.concat(`cd #{@main_path} && grep -n #{args} -R *.ch 2>/dev/null | sed 's/^/@/g'`.to_a)
+    args.sub!(/^"(.*)"/,'\1')
+    result = `cd #{@pri_path} && grep -n -i -P '#{args}' -R *.ch 2>/dev/null`.to_a
+    result.concat(`cd #{@main_path} && grep -n -i -P '#{args}' -R *.ch 2>/dev/null | sed 's/^/@/g'`.to_a)
     all_result = []
     result.each do |x|
       stuff = x.split(':',3)
@@ -194,11 +187,11 @@ module  Yac
       print " "
       colorful(stuff[1],"line_number",false)
       print " "
-      format_section(empha(stuff[2],nil,/((#{args}))/),true)
+      format_section(empha(stuff[2],nil,/((#{args}))/i),true)
       all_result.concat(stuff[0].to_a)
     end
     loop do
-      colorful("Files contain #{args.strip},choose one to show","notice")
+      colorful("All files contain #{args.strip},choose one to show","notice")
       file =  full_path(choose_one(all_result))
       exit unless file
       format_file(file)
@@ -214,7 +207,7 @@ module  Yac
       file = @pri_path + args.to_s
       @working_git = @pri_git
     end
-    return file
+    return file.strip
   end
 
   # To confirm Operate OR Not
@@ -254,9 +247,5 @@ module  Yac
     num = STDIN.gets
     return if num =~ /q/i
     (1..size).member?(num.to_i) ? (return num.to_i) : choose_range(size)
-  end
-
-  def regex_protect(args)
-    args.gsub(/\//,'\/')
   end
 end

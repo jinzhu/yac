@@ -1,47 +1,78 @@
 =  YAC => Yet Another Cheet (Powered By Ruby)
+  YAC was inspired by 'chit' (http://github.com/robin/chit) by robin and 'cheat' (http://cheat.errtheblog.com/) by Chris Wanstrath,But @@@Colorful and Sexy!!!@@@
 
-== FEATURES:
-  YAC was inspired by 'chit' (http://github.com/robin/chit) by robin and 'cheat' (http://cheat.errtheblog.com/) by Chris Wanstrath
-  what's the different:
-  @@@Colorful and Sexy!@@@
+== What?
+  Cheat sheet is a concise set of notes used for quick reference.
+  YAC is a simple sexy command line tool for easy control cheatsheet.
+  Install, Use, Enjoy :)
 
 == How To Use
 
 === To initialize repositories:
     $ yac init
-=== To get a cheat sheet:
-    $ yac [cheatsheet]
+
+=== To show a cheat sheet:
+    $ yac (show) [cheatsheet] ( you can use * for any chars)
+    Eg:
+    $ yac show lin*x
+
 === To edit a cheat sheet
-    $ yac edit [cheatsheet]
+    $ yac edit [cheatsheet] (Yes,you can use * for any chars also,then choose one to edit)
+
 === To add a cheat sheet
-    $ yac add [cheatsheet]
+    $ yac add [cheatsheet] (OMG,you can also use *)
+    Eg:
+    $ yac li*x/install
+    Then will display all directories match /li*x/,feel freely to choose one of them,
+    A new file named install.ch will be added to the directory!
+
 === To rm a cheat sheet
-    $ yac rm [cheatsheet]
-=== Search according the sheets name
-    $ yac name [keyword]
-=== Search according the sheets content
-    $ yac content [keyword]
+    $ yac rm [cheatsheet] (Sure,you can use *)
+
+=== Search all sheets
+    $ yac search [keyword] (@@@Take Attention:@@@ You are allowed to use perl-like Regex)
+    Eg:
+    $ yac search lin.*x
+    And Even:
+    $ yac search "r(uby|ails)"
+
 === Update repositories
     $ yac update main  => Update main repository
-    $ yac update private => Update private repository
-    $ yac update => Update All
-=== Help
-    $ yac help / yac / -h / --help
+    $ yac update all => Update all repositories
+    $ yac update => Update private repository
+
 === Shell
-    $ yac shell / sh main => Open the main repository's shell
-    $ yac shell / sh => Open the private repository's shell
+    $ yac sh main => Open the main repository's shell
+    $ yac sh => Open the private repository's shell
+
+== Repository Push
+    $ yac push main => Push the main repository
+    $ yac push all => Push all repositories
+    $ yac push => Push the private repository
+
+== Rename a cheatsheet:
+    $ yac mv [orign_name] [new_name]
+
+=== Help (display this file)
+    $ yac help
+
 === Documents format
-   Use .ch as the suffix ,At the beginning of the row,plus N = for the N-class title
-   Use '#' at the beginning of a row to comment the line,You can use '\#' to get '#'
-   Use three @ wrap some words to highlight it,for example: @@\@ HI @@\@ (remove the \) will highlight HI
-=== Set the color of highlight
-   Default use .yacrc under home directory to set,, details, see the example file under the resources directory
+   All text file add ".ch" as suffix for butter editor highlight
+   (A very very simple vim script can be found here : http://www.vim.org/scripts/script.php?script_id=2399)
+
+   At the beginning of the row,plus N = for the N-class title
+
+   Use '#' at the beginning of a row to comment the line,You can use '\#' for '#'
+
+   Words wrapped by three @ for highlight
+
+=== The configure file
+   Default use $HOME/.yacrc , See the example file under resources directory
+
 === Others
-   Add @ before [cheatsheet]/[keyword] will only search the main depot
-   See also the source code to get more sexy ways
+   Add @ before [keyword] will only affect the main repository
 
 == REQUIREMENTS:
-
 * Ruby
 * rubygems
 * git

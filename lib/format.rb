@@ -5,6 +5,7 @@ module Format
 
   def format_file(file)
     @level = 0
+    colorful(file,"filename")
     case `file #{file} 2&>/dev/null`
     when / PDF /
       puts Pdf_Error unless system("#{Yac::CONFIG["pdf_command"]||'evince'} #{file}")
@@ -24,6 +25,7 @@ module Format
       @level = search ? 1 : $1.size
       colorful("\s"*2*(@level-1) + $2,"head#{@level}")
     when /^(\s*)#/
+      colorful(section.sub(/^\s*/,'')) if search
     else
       colorful(section.sub(/^\#/,"#").sub(/^\s*/, "\s" * ( @level||0 ) * 2 ))
     end
