@@ -6,8 +6,11 @@ module  Yac
   extend self
 
   YACRC = File.join("#{ENV['HOME']}",".yacrc")
+
   FileUtils.cp(File.join(File.dirname(__FILE__), "..","resources","yacrc"), YACRC) unless File.exist?(YACRC)
+
   CONFIG = YAML.load_file(File.join(ENV['HOME'],".yacrc"))
+
   CONFIG["root"] ||= File.join(ENV['HOME'],".yac")
 
   @main_path, @pri_path = File.join(CONFIG["root"],"/main/"), File.join(CONFIG["root"],"/private/")
@@ -28,6 +31,8 @@ module  Yac
     when "sh" then shell(args[1,args.size])
     when "rm" then rm(args[1,args.size])
     when "mv" then rename(args[1,args.size])
+    when /^version|-v$/ then
+      load File.join(File.dirname(__FILE__), "..", "yac.gemspec");colorful("yac, version: " + VER,"notice")
     else show(args)
     end
   rescue
