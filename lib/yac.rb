@@ -33,7 +33,7 @@ module  Yac
     when "init" then init
     else show(args)
     end
-  rescue
+  #rescue
   end
 
   def init
@@ -130,7 +130,7 @@ module  Yac
     if args.include?('/') && args =~ /(@?)(?:(.*)\/)(.+)/
       path = $1.empty? ? @pri_path : @main_path
       all_path = `find #{path} -type d -iwholename '*#{$2}*' -not -iwholename '*.git*'| sed 's/^#{regex_protect(path)}/#{$1}/'`.to_a
-      choosed_path = choose_one(all_path)
+      choosed_path = choose_one(all_path.concat([$1+$2]).uniq)
       args = choosed_path + "/" + $3 if choosed_path
     end
     file = full_path(args+".ch")
@@ -186,6 +186,7 @@ module  Yac
   def search_content(args)
     result = `cd #{@pri_path} && grep -n #{args} -R *.ch 2>/dev/null`.to_a
     result.concat(`cd #{@main_path} && grep -n #{args} -R *.ch 2>/dev/null | sed 's/^/@/g'`.to_a)
+    all_result = []
     result.each do |x|
       stuff = x.split(':',3)
       colorful(stuff[0],"filename",false)
@@ -193,15 +194,23 @@ module  Yac
       colorful(stuff[1],"line_number",false)
       print " "
       format_section(empha(stuff[2],nil,/((#{args}))/),true)
+      all_result.concat(stuff[0].to_a)
+    end
+    loop do
+      colorful("Files contain #{args.strip},choose one to show","notice")
+      file =  full_path(choose_one(all_result))
+      exit unless file
+      format_file(file)
     end
   end
 
   def full_path(args)
+    return false unless args
     if args =~ /^@/
       file = @main_path + args.sub(/^@/,"")
       @working_git = @main_git
     else
-      file = @pri_path + args
+      file = @pri_path + args.to_s
       @working_git = @pri_git
     end
     return file
@@ -209,7 +218,7 @@ module  Yac
 
   # To confirm Operate OR Not
   def confirm(*msg)
-    colorful("#{msg.to_s}\nAre You Sure (Y/N) (Q to quit):","notice",false)
+    colorful("#{msg.to_s}\nAre You Sure (Y/N) (q to quit):","notice",false)
     case STDIN.gets
     when /n|q/i
       exit
@@ -240,7 +249,7 @@ module  Yac
 
   #choose a valid range
   def choose_range(size)
-    colorful("Please Input A Valid Number To Choose (1..#{size}) (Q to quit): ","notice",false)
+    colorful("Please Input A Valid Number To Choose (1..#{size}) (q to quit): ","notice",false)
     num = STDIN.gets
     return if num =~ /q/i
     (1..size).member?(num.to_i) ? (return num.to_i) : choose_range(size)
