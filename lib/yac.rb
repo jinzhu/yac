@@ -130,6 +130,7 @@ module  Yac
     if args.include?('/') && args =~ /(@?)(?:(.*)\/)(.+)/
       path = $1.empty? ? @pri_path : @main_path
       all_path = `find #{path} -type d -iwholename '*#{$2}*' -not -iwholename '*.git*'| sed 's/^#{regex_protect(path)}/#{$1}/'`.to_a
+      colorful("Which directory do you want to use :","notice")
       choosed_path = choose_one(all_path.concat([$1+$2]).uniq)
       args = choosed_path + "/" + $3 if choosed_path
     end
