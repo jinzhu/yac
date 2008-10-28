@@ -36,8 +36,13 @@ module Format
     when /( image )|(\.svg)/
       puts Image_Error unless system("#{Yac::CONFIG["image_edit_command"]||'gimp'} #{file}")
     else
-      puts Image_Error unless system("#{Yac::CONFIG["editor"] || ENV['EDITOR'] ||'gimp'} #{file}")
+      edit_text(file)
     end
+  end
+
+  def edit_text(file)
+    prepare_dir(file)
+    puts Doc_Error unless system("#{Yac::CONFIG["editor"] || ENV['EDITOR'] ||'vim'} #{file}")
   end
 
   def clean_filename(f)
@@ -54,5 +59,10 @@ module Format
     stuff.to_s.scan(empha_regexp) do |x|
       return stuff.gsub(x[0],"\033[0m\033[#{Yac::CONFIG["empha"].to_s}m%s\033[0m\033[%sm" % [x[1],Yac::CONFIG[level]])
     end
+  end
+
+  def prepare_dir(file)
+    dirseparator = file.rindex(File::Separator)+1
+    FileUtils.mkdir_p(file[0,dirseparator])
   end
 end

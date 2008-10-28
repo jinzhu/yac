@@ -32,7 +32,7 @@ module  Yac
     when "init" then init
     else show(args)
     end
-  #rescue
+  rescue
   end
 
   def init
@@ -114,7 +114,17 @@ module  Yac
 
   protected
   def add_single(args)
-     #FIXME Remove .ch suffix add edit should not work
+    if args.include?('/') && args =~ /(@?)(?:(.*)\/)(.+)/
+      path = $1.empty? ? @pri_path : @main_path
+      all_path = `find #{path} -type d -iwholename '*#{$2}*' -not -iwholename '*.git*'| sed 's/^#{regex_protect(path)}/#{$1}/'`.to_a
+      choosed_path = choose_one(all_path)
+      args = choosed_path + "/" + $3 if choosed_path
+    end
+    file = full_path(args+".ch")
+    confirm("You Are Adding #{file}")
+    edit_text(file)
+    @working_git.add
+    @working_git.commit_all("#{clean_filename(file)} Added")
   end
 
   def show_single(args)
@@ -141,18 +151,23 @@ module  Yac
   end
 
   def search_name(args,msg = nil)
-    reg_main = @main_path.gsub(/\//,'\/')
-    reg_pri =  @pri_path.gsub(/\//,'\/')
-    colorful("The Results About < #{args} > To #{msg || "Operate"} :","notice")
     if args =~ /^@/ && main = args.sub(/^@/,"")
       @private_result = []
-      @main_result = `find #{@main_path} -type f -iwholename *#{main}* -not -iwholename *.git*| sed 's/^#{reg_main}/@/'`.to_a
+      @main_result = %x{
+        find #{@main_path} -type f -iwholename "*#{main}*" -not -iwholename "*.git*"| sed 's/^#{regex_protect(@main_path)}/@/'
+      }.to_a
     else
-      @private_result = `find #{@pri_path} -type f -iwholename *#{args}* -not -iwholename *.git*| sed 's/^#{reg_pri}//'`.to_a
-      @main_result = `find #{@main_path} -type f -iwholename *#{args}*  -not -iwholename *.git*| sed 's/^#{reg_main}/@/'`.to_a
+      @private_result = %x{
+        find #{@pri_path} -type f -iwholename "*#{args}*" -not -iwholename "*.git*"| sed 's/^#{regex_protect(@pri_path)}//'
+      }.to_a
+
+      @main_result = %x{
+        find #{@main_path} -type f -iwholename "*#{args}*"  -not -iwholename "*.git*"| sed 's/^#{regex_protect(@main_path)}/@/'
+      }.to_a
     end
     result = @main_result.concat(@private_result)
-    return result.empty? ? (colorful("Nothing Found About < #{args} >","warn")) : full_path(choose_one(result))
+    return result.empty? ? (colorful("Nothing Found About < #{args} >","warn")) :
+      (colorful("The Results About < #{args} > To #{msg || "Operate"} :","notice");full_path(choose_one(result)))
   end
 
   def search_content(args)
@@ -167,11 +182,6 @@ module  Yac
       format_section(empha(stuff[2],nil,/((#{args}))/),true)
     end
   end
-
-#  def prepare_dir
-#    dirseparator = @file_path.rindex(File::Separator)+1
-#    FileUtils.mkdir_p(@file_path[0,dirseparator])
-#  end
 
   def full_path(args)
     if args =~ /^@/
@@ -221,5 +231,9 @@ module  Yac
     num = STDIN.gets
     return if num =~ /q/i
     (1..size).member?(num.to_i) ? (return num.to_i) : choose_range(size)
+  end
+
+  def regex_protect(args)
+    args.gsub(/\//,'\/')
   end
 end
