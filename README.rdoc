@@ -7,6 +7,10 @@
   Yes,It's support Image,PDF,Text, and can be easily enhance :)
   Install, Use, Enjoy :)
 
+== Install
+   Make sure you have ruby,git in your system . then:
+   $ (sudo) gem install yac -s http://gems.github.com
+
 == How To Use
 
 === To initialize repositories:
