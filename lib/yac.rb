@@ -117,8 +117,9 @@ module  Yac
   def rename(args)
     (colorful("Usage:\nyac mv [orign_name] [new_name]\n\nTry `yac -h` for more help","warn");exit) unless args.size == 2
     file = search_name(args[0],"Rename")
-    new_name = file.sub(/^((?:.*)?(?:main|private)\/)(.*)(\..*)/,'\1'+args[1]+'\3')
+    new_name = add_file(args[1].sub(/^(@)?/,file =~ /^#{@main_path}/ ? "@":""),file.sub(/.*(\..*)/,'\1'))
     if confirm("You Are Renaming #{file} To #{new_name}")
+      prepare_dir(new_name)
       `mv "#{file}" "#{new_name}"`
       @working_git.add
       @working_git.commit_all("#{clean_filename(file)} Renamed to #{clean_filename(new_name)}")
@@ -127,21 +128,25 @@ module  Yac
 
   protected
   def add_single(args)
-    if args.include?('/') && args =~ /(@?)(?:(.*)\/)(.+)/
-      path = $1.empty? ? @pri_path : @main_path
-      all_path = %x{
-        find #{path} -type d -iwholename '#{path}*#{$2}*' -not -iwholename '*.git*'| sed 's/^.*\\(private\\|main\\)\\//#{$1}/'
-      }.to_a
-      colorful("Which directory do you want to use:","notice")
-      choosed_path = choose_one(all_path.concat([$1+$2]).uniq)
-      args = choosed_path + "/" + $3 if choosed_path
-    end
-    file = full_path(args+".ch")
+    file = add_file(args)
     if confirm("You Are Adding #{file}")
       edit_text(file)
       @working_git.add
       @working_git.commit_all("#{clean_filename(file)} Added")
     end
+  end
+
+  def add_file(args,suffix = ".ch")
+    if args.include?('/') && args =~ /(@?)(?:(.*)\/)(.+)/
+      path = $1.empty? ? @pri_path : @main_path
+      all_path = %x{
+        find #{path} -type d -iwholename '#{path}*#{$2}*' -not -iwholename '*.git*'| sed 's/^.*\\(private\\|main\\)\\//#{$1}/'
+      }.to_a
+        colorful("Which directory do you want to use:","notice") if all_path.size >1
+        choosed_path = choose_one(all_path.concat([$1+$2]).uniq)
+        args = choosed_path + "/" + $3 if choosed_path
+    end
+    file = full_path(args+suffix)
   end
 
   def show_single(args)
