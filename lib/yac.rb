@@ -25,6 +25,7 @@ module  Yac
     when "search" then search(args[1,args.size])
     when "update" then update(args[1,args.size])
     when "push" then push(args[1,args.size])
+    when "log" then log(args[1,args.size])
     when "add" then add(args[1,args.size])
     when "edit" then edit(args[1,args.size])
     when /^(help|-h|yac|--help)$/ then help
@@ -66,25 +67,32 @@ module  Yac
   end
 
   def update(args)
-    case args.to_s
-    when /main/ then result = `cd "#{@main_path}" && git pull `  #NOTE There is an bug in the git.gem,Then I will write a new git library use shell command
-    when /all/  then result = `cd "#{@pri_path}" && git pull && cd "#{@main_path}" && git pull `
-    else result = `cd "#{@pri_path}" && git pull`
-    end
-    colorful(result,"notice")
+    git_command(args,'pull')
   rescue
     colorful("ERROR: can not update the repository,\n\n#{$!}","warn")
   end
 
   def push(args)
-    case args.to_s
-    when /main/ then result=@main_git.push
-    when /all/  then result=@pri_git.push && result << @main_git.push
-    else result = @pri_git.push
-    end
-    colorful(result,"notice")
+    git_command(args,'push')
   rescue
     colorful("Usage:\nyac push ( main | all )\n\nTry `yac -h` for more help\n\n#{$1}","warn")
+  end
+
+  def log(args)
+    git_command(args,'log --color --date-order --reverse')
+  end
+
+  def git_command(env,command)
+    case env.to_s
+    when /main/ then git_path = [@main_path]
+    when /all/ then git_path = [@main_path,@pri_path]
+    else git_path = [@pri_path]
+    end
+
+    git_path.each do |x|
+      colorful(x,'filename')
+      colorful( `cd #{x} && git #{command}` ,"notice")
+    end
   end
 
   def edit(args)
