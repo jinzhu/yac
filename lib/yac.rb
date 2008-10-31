@@ -117,7 +117,9 @@ module  Yac
   def rename(args)
     (colorful("Usage:\nyac mv [orign_name] [new_name]\n\nTry `yac -h` for more help","warn");exit) unless args.size == 2
     file = search_name(args[0],"Rename")
-    new_name = add_file(args[1].sub(/^(@)?/,file =~ /^#{@main_path}/ ? "@":""),file.sub(/.*(\..*)/,'\1'))
+    #You can use $ yac mv linux.ch linux/ to rename linux.ch to linux/linux.ch
+    new_filename = args[1].sub(/\/$/,file.sub(/.*\/(.*)(\..*)/,'/\1')).sub(/^(@)?/,file =~ /^#{@main_path}/ ? "@":"")
+    new_name = add_file(new_filename ,file.sub(/.*(\..*)/,'\1'))
     if confirm("You Are Renaming #{file} To #{new_name}")
       prepare_dir(new_name)
       `mv "#{file}" "#{new_name}"`
