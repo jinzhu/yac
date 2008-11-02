@@ -160,8 +160,10 @@ module  Yac
   end
 
   def show_single(args)
-    file = search_name(args,"Show")
-    format_file(file)
+    loop do
+      file = search_name(args,"Show")
+      file ? format_file(file) : break
+    end
   end
 
   def rm_single(args)
@@ -189,6 +191,9 @@ module  Yac
     path.each do |x|
       result.concat(`find "#{x}" -type f -iwholename '#{x}*#{args.sub(/^@/,'').strip}*' -not -iwholename '*.git*'| sed 's/^.*\\(private\\|main\\)\\//#{x=~/main/ ? '@':'' }/'`.to_a)
     end
+    #For loop show filename
+    (format_file(full_path(result[0]));return nil) if msg =~ /show/i && result.size == 1
+
     return result.empty? ? (colorful("Nothing Found About < #{args} >","warn")) :
       (colorful("The Results About < #{args} > To #{msg || "Operate"} :","notice");full_path(choose_one(result)))
   end
@@ -210,7 +215,7 @@ module  Yac
     loop do
       colorful("All files Contain #{args.strip},Choose one to show","notice")
       file =  full_path(choose_one(all_result))
-      file ? format_file(file) : exit
+      file ? format_file(file) : break
     end
   end
 
