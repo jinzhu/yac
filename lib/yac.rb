@@ -214,7 +214,7 @@ module  Yac
     end
     loop do
       colorful("All files Contain #{args.strip},Choose one to show","notice")
-      file =  full_path(choose_one(all_result))
+      file =  full_path(choose_one(all_result.uniq))
       file ? format_file(file) : break
     end
   end
