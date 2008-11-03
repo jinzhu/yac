@@ -212,9 +212,10 @@ module  Yac
       format_section(empha(stuff[2],nil,/((#{args}))/i),true)
       all_result.concat(stuff[0].to_a)
     end
+    all_result.uniq!
     loop do
+      all_result.size > 1 ? (file = full_path(choose_one(all_result))) : (format_file(full_path(all_result[0]));break)
       colorful("All files Contain #{args.strip},Choose one to show","notice")
-      file =  full_path(choose_one(all_result.uniq))
       file ? format_file(file) : break
     end
   end
