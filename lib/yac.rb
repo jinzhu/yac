@@ -147,10 +147,10 @@ module  Yac
   end
 
   def add_file(args,suffix = ".ch")
-    if args.include?('/') && args =~ /(@?)(?:(.*)\/)(.+)/
-      path = $1.empty? ? @pri_path : @main_path
+    if args.include?('/') && args =~ /(@?)(?:(.*)\/)(.+)/ #choose directory
+      path = $1.empty? ? @pri_path : @main_path           #choose git path
       all_path = %x{
-        find #{path} -type d -iwholename '#{path}*#{$2}*' -not -iwholename '*.git*'| sed 's/^.*\\(private\\|main\\)\\//#{$1}/'
+        find #{path} -type d -iwholename '#{path}*#{$2}*' -not -iwholename '*.git*'| sed 's/^.*\\/\\(private\\|main\\)\\//#{$1}/'
       }.to_a
         colorful("Which directory do you want to use:","notice") if all_path.size >1
         choosed_path = choose_one(all_path.concat([$1+$2]).uniq)
@@ -169,12 +169,8 @@ module  Yac
   def rm_single(args)
     file = search_name(args,"Remove")
     if confirm("You Are Removing #{file}.")
-      begin
-        @working_git.remove(file)
-        @working_git.commit_all("#{clean_filename(file)} Removed")
-      rescue Git::GitExecuteError
-        FileUtils.rm_rf(file)
-      end
+      @working_git.remove(file)
+      @working_git.commit_all("#{clean_filename(file)} Removed")
     end
   end
 
@@ -189,7 +185,7 @@ module  Yac
     path = (args =~ /^(@)/) ? [@main_path] : [@main_path , @pri_path]
     result = []
     path.each do |x|
-      result.concat(`find "#{x}" -type f -iwholename '#{x}*#{args.sub(/^@/,'').strip}*' -not -iwholename '*.git*'| sed 's/^.*\\(private\\|main\\)\\//#{x=~/main/ ? '@':'' }/'`.to_a)
+      result.concat(`find "#{x}" -type f -iwholename '#{x}*#{args.sub(/^@/,'').strip}*' -not -iwholename '*.git*'| sed 's/^.*\\/\\(private\\|main\\)\\//#{x=~/main/ ? '@':'' }/'`.to_a)
     end
 
     return result.empty? ? (colorful("Nothing Found About < #{args} >","warn")) :
@@ -197,23 +193,21 @@ module  Yac
   end
 
   def search_content(args)
-    args.sub!(/^"(.*)"/,'\1')
+    args.sub!(/^"(.*)"/,'\1') #Remove the " for input Regex
     result = `cd "#{@pri_path}" && grep -n -i -P '#{args}' -R *.ch 2>/dev/null`.to_a
     result.concat(`cd "#{@main_path}" && grep -n -i -P '#{args}' -R *.ch 2>/dev/null | sed 's/^/@/g'`.to_a)
     all_result = []
     result.each do |x|
       stuff = x.split(':',3)
       colorful(stuff[0],"filename",false)
-      print " "
       colorful(stuff[1],"line_number",false)
-      print " "
       format_section(empha(stuff[2],nil,/((#{args}))/i),true)
       all_result.concat(stuff[0].to_a)
     end
     all_result.uniq!
     loop do
-      file = full_path(choose_one(all_result))
       colorful("All files Contain #{args.strip},Choose one to show","notice")
+      file = full_path(choose_one(all_result))
       file ? format_file(file) : break
     end
   end
@@ -235,13 +229,12 @@ module  Yac
     return STDIN.gets.to_s =~ /n|q/i ? false : true
   end
 
-  # Choose one file to operate
   def choose_one(stuff)
     if stuff.size > 0
       stuff.each_index do |x|
         colorful("%2s" % (x+1).to_s,"line_number",false)
-        printf " %-20s \t" % [stuff[x].rstrip]
-        print "\n" if (x+1)%4 == 0
+        printf "%-24s\t" % [stuff[x].rstrip]
+        print "\n" if (x+1)%3 == 0
       end
       printf "\n"
       num = choose_range(stuff.size)

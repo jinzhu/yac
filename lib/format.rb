@@ -53,7 +53,7 @@ module Format
 
   def colorful(stuff,level="text",line_break = true)
     stuff = empha(stuff,level)
-    print "\e[%sm%s\e[0m" % [Yac::CONFIG[level],stuff.rstrip]
+    print "\e[%sm%s\e[0m " % [Yac::CONFIG[level],stuff.rstrip]
     print "\n" if line_break
   end
 
