@@ -191,8 +191,6 @@ module  Yac
     path.each do |x|
       result.concat(`find "#{x}" -type f -iwholename '#{x}*#{args.sub(/^@/,'').strip}*' -not -iwholename '*.git*'| sed 's/^.*\\(private\\|main\\)\\//#{x=~/main/ ? '@':'' }/'`.to_a)
     end
-    #For loop show filename
-    (format_file(full_path(result[0]));return nil) if msg =~ /show/i && result.size == 1
 
     return result.empty? ? (colorful("Nothing Found About < #{args} >","warn")) :
       (colorful("The Results About < #{args} > To #{msg || "Operate"} :","notice");full_path(choose_one(result)))
@@ -214,7 +212,7 @@ module  Yac
     end
     all_result.uniq!
     loop do
-      all_result.size > 1 ? (file = full_path(choose_one(all_result))) : (format_file(full_path(all_result[0]));break)
+      file = full_path(choose_one(all_result))
       colorful("All files Contain #{args.strip},Choose one to show","notice")
       file ? format_file(file) : break
     end
@@ -247,9 +245,7 @@ module  Yac
 
   # Choose one file to operate
   def choose_one(stuff)
-    if stuff.size == 1
-      return stuff[0]
-    elsif stuff.size > 1
+    if stuff.size > 0
       stuff.each_index do |x|
         colorful("%2s" % (x+1).to_s,"line_number",false)
         printf " %-20s \t" % [stuff[x].rstrip]
@@ -257,16 +253,17 @@ module  Yac
       end
       printf "\n"
       num = choose_range(stuff.size)
-      return stuff[num-1].to_s.strip
+      return stuff[num-1].to_s.strip #return the filename
     end
   rescue #Rescue for user input q to quit
   end
 
-  #choose a valid range
+  #choose a valid number
   def choose_range(size)
     colorful("Please Input A Valid Number To Choose (1..#{size}) (q to quit): ","notice",false)
     num = STDIN.gets
     return if num =~ /q/i
-    (1..size).member?(num.to_i) ? (return num.to_i) : choose_range(size)
+    choosed_num = num.strip.empty? ? 1 : num.to_i
+    (1..size).member?(choosed_num) ? (return choosed_num) : choose_range(size)
   end
 end
