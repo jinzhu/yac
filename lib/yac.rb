@@ -232,15 +232,7 @@ module  Yac
 
   def confirm(*msg)
     colorful("#{msg.to_s}\nAre You Sure (Y/N) (q to quit):","notice",false)
-    case STDIN.gets
-    when /n|q/i
-      return false
-    when /y/i
-      return true
-    else
-      colorful("Please Input A Valid String,","warn")
-      confirm(msg)
-    end
+    return STDIN.gets.to_s =~ /n|q/i ? false : true
   end
 
   # Choose one file to operate
