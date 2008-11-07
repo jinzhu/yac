@@ -53,13 +53,13 @@ module Format
 
   def colorful(stuff,level="text",line_break = true)
     stuff = empha(stuff,level)
-    print "\033[%sm%s\033[0m" % [Yac::CONFIG[level],stuff.rstrip]
+    print "\e[%sm%s\e[0m" % [Yac::CONFIG[level],stuff.rstrip]
     print "\n" if line_break
   end
 
   def empha(stuff,level="text",empha_regexp=/(@@@(.*)@@@)/)
     stuff.to_s.scan(empha_regexp) do |x|
-      return stuff.gsub(x[0],"\033[0m\033[#{Yac::CONFIG["empha"].to_s}m%s\033[0m\033[%sm" % [x[1],Yac::CONFIG[level]])
+      return stuff.gsub(x[0],"\e[0m\e[#{Yac::CONFIG["empha"].to_s}m%s\e[0m\e[%sm" % [x[1],Yac::CONFIG[level]])
     end
   end
 
