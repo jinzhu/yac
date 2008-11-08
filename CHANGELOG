@@ -1,0 +1,10 @@
+V1.1.1 <2008-11-8>
+  * $ yac l/oo/t           To choose linux/gentoo/install
+  * $ yac add l/oo/t       To choose linux/gentoo/ As the directory for file t
+
+V1.1.0 <2008-11-8>
+  * Don't need schacon-git anymore
+  * When Choose files You can Just press enter to choose the first one
+  * When Confirm You can Just press enter to answer Yes
+
+Version Below V1.1.0 Please See README
