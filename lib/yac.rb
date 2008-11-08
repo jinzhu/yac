@@ -143,14 +143,16 @@ module  Yac
 
   def add_file(args,suffix = ".ch")
     if args.include?('/') && args =~ /(@?)(?:(.*)\/)(.+)/ #choose directory
-      path = $1.empty? ? @pri_path : @main_path           #choose git path
+      prefix,path_name,file_name = $1,$2,$3
+      path = prefix.empty? ? @pri_path : @main_path           #choose git path
+      # Yes,you can use 'l/e' to choose 'linux/gentoo'
       all_path = %x{
-        find #{path} -type d -iwholename '#{path}*#{$2}*' -not -iwholename '*.git*'| sed 's/^.*\\/\\(private\\|main\\)\\//#{$1}/'
-      }.to_a.map(&:strip).concat([$1+$2]).uniq
+        find #{path} -type d -iwholename '#{path}*#{path_name.gsub(/\//,'*/*')}*' -not -iwholename '*.git*'| sed 's/^.*\\/\\(private\\|main\\)\\//#{prefix}/'
+      }.to_a.map(&:strip).concat([prefix+path_name]).uniq
 
       colorful("Which directory do you want to use:","notice")
       choosed_path = choose_one(all_path)
-      return full_path(choosed_path + "/" + $3 + suffix) if choosed_path
+      return full_path(choosed_path + "/" + file_name + suffix) if choosed_path
     else
       return full_path(args+suffix)
     end
