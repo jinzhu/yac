@@ -9,7 +9,7 @@
 
 == Install
    Make sure you have ruby,git in your system . then:
-   $ (sudo) gem install yac -s http://gems.github.com
+   $ (sudo) gem install yac
 
 == How To Use
 
@@ -20,6 +20,7 @@
     $ yac (show) [cheatsheet] ( you can use * for any chars)
     Eg:
     $ yac show lin*x
+    $ yac show l/o/a    To show linux/gentoo/masked
 
 === To edit a cheat sheet
     $ yac edit [cheatsheet] (Yes,you can use * for any chars also,then choose one to edit)
@@ -30,6 +31,8 @@
     $ yac li*x/install
     Then will display all directories match /li*x/,feel freely to choose one of them,
     A new file named install.ch will be added to the directory!
+    $ yac l/oo/install
+    Oh,no,you can choose linux/gentoo as the directory for the install file
 
 === To rm a cheat sheet
     $ yac rm [cheatsheet] (Sure,you can use *)
@@ -82,8 +85,8 @@
 
 == REQUIREMENTS:
 * Ruby
+* Git
 * rubygems
-* git
 
 == LICENSE:
 
