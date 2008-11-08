@@ -1,3 +1,9 @@
+class Symbol
+  def to_proc
+    Proc.new { |*args| args.shift.__send__(self, *args) }
+  end
+end
+
 module Format
   Pdf_Error = "Please Modify ~/.yacrc To Provide A Valid Command To Operate PDF Document"
   Image_Error = "Please Modify ~/.yacrc To Provide A Valid Command To Operate Image Document"

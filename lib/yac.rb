@@ -1,6 +1,5 @@
 $:.unshift File.dirname(__FILE__)
-%w(rubygems git fileutils yaml format).each {|f| require f}
-
+%w(git fileutils yaml format).each {|f| require f}
 module  Yac
   include Format
   extend self
@@ -14,8 +13,8 @@ module  Yac
   CONFIG["root"] ||= File.join(ENV['HOME'],".yac")
 
   @main_path, @pri_path = File.join(CONFIG["root"],"/main/"), File.join(CONFIG["root"],"/private/")
-  @main_git = Git.open(@main_path) if File.exist?(@main_path)
-  @pri_git = Git.open(@pri_path)if File.exist?(@pri_path)
+  @main_git = Git.new(@main_path)
+  @pri_git = Git.new(@pri_path)
 
   def new(args)
     init unless File.exist?(@main_path) && File.exist?(@pri_path)
@@ -36,7 +35,7 @@ module  Yac
       load File.join(File.dirname(__FILE__), "..", "yac.gemspec");colorful("yac, version: " + VER,"notice")
     else show(args)
     end
-  rescue
+  #rescue
   end
 
   def init
@@ -47,13 +46,12 @@ module  Yac
       else
         if CONFIG["#{name}"] && CONFIG["#{name}"]['clone-from']
           colorful("Initialize #{name} repository from #{CONFIG[name]['clone-from']} to #{CONFIG['root']}/#{name}","notice")
-          Git.clone(CONFIG["#{name}"]['clone-from'], name, :path => CONFIG['root'])
+          Git.clone(CONFIG["#{name}"]['clone-from'],CONFIG['root'],name)
         else
           colorful("Initialize #{name} repository from scratch to #{CONFIG['root']}/#{name}","notice")
+          prepare_dir(path)
           Git.init(path)
         end
-        @main_git = Git.open(@main_path) if File.exist?(@main_path)
-        @pri_git = Git.open(@pri_path)if File.exist?(@pri_path)
       end
     end
   end
@@ -128,21 +126,18 @@ module  Yac
     #You can use $ yac mv linux.ch linux/ to rename linux.ch to linux/linux.ch
     new_filename = args[1].sub(/\/$/,file.sub(/.*\/(.*)(\..*)/,'/\1')).sub(/^(@)?/,file =~ /^#{@main_path}/ ? "@":"")
     new_name = add_file(new_filename ,file.sub(/.*(\..*)/,'\1'))
-    if confirm("You Are Renaming #{file} To #{new_name}")
+    if new_name && confirm("You Are Renaming #{file} To #{new_name}")
       prepare_dir(new_name)
-      `mv "#{file}" "#{new_name}"`
-      @working_git.add
-      @working_git.commit_all("#{clean_filename(file)} Renamed to #{clean_filename(new_name)}")
+      @working_git.mv(file,new_name)
     end
   end
 
   protected
   def add_single(args)
     file = add_file(args)
-    if confirm("You Are Adding #{file}")
+    if file && confirm("You Are Adding #{file}")
       edit_text(file)
-      @working_git.add
-      @working_git.commit_all("#{clean_filename(file)} Added")
+      @working_git.add(file)
     end
   end
 
@@ -151,12 +146,14 @@ module  Yac
       path = $1.empty? ? @pri_path : @main_path           #choose git path
       all_path = %x{
         find #{path} -type d -iwholename '#{path}*#{$2}*' -not -iwholename '*.git*'| sed 's/^.*\\/\\(private\\|main\\)\\//#{$1}/'
-      }.to_a
-        colorful("Which directory do you want to use:","notice") if all_path.size >1
-        choosed_path = choose_one(all_path.concat([$1+$2]).uniq)
-        args = choosed_path + "/" + $3 if choosed_path
+      }.to_a.map(&:strip).concat([$1+$2]).uniq
+
+      colorful("Which directory do you want to use:","notice")
+      choosed_path = choose_one(all_path)
+      return full_path(choosed_path + "/" + $3 + suffix) if choosed_path
+    else
+      return full_path(args+suffix)
     end
-    file = full_path(args+suffix)
   end
 
   def show_single(args)
@@ -169,16 +166,14 @@ module  Yac
   def rm_single(args)
     file = search_name(args,"Remove")
     if confirm("You Are Removing #{file}.")
-      @working_git.remove(file)
-      @working_git.commit_all("#{clean_filename(file)} Removed")
+      @working_git.rm(file)
     end
   end
 
   def edit_single(args)
     file = search_name(args,"Edit")
     edit_file(file)
-    @working_git.add
-    @working_git.commit_all("#{clean_filename(file)} Updated")
+    @working_git.edit(file)
   end
 
   def search_name(args,msg = nil)
@@ -247,7 +242,7 @@ module  Yac
   def choose_range(size)
     colorful("Please Input A Valid Number To Choose (1..#{size}) (q to quit): ","notice",false)
     num = STDIN.gets
-    return if num =~ /q/i
+    return false if num =~ /q/i
     choosed_num = num.strip.empty? ? 1 : num.to_i
     (1..size).member?(choosed_num) ? (return choosed_num) : choose_range(size)
   end
