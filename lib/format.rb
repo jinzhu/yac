@@ -53,10 +53,6 @@ module Format
     puts Doc_Error unless system("#{Yac::CONFIG["editor"] || ENV['EDITOR'] ||'vim'} \"#{file}\" 2>/dev/null")
   end
 
-  def clean_filename(f)
-    return f.sub(/^(.*)?(main|private)\/(.*)/,'\3').sub(/^@/,'')
-  end
-
   def colorful(stuff,level="text",line_break = true)
     stuff = empha(stuff,level)
     print "\e[%sm%s\e[0m " % [Yac::CONFIG[level],stuff.rstrip]

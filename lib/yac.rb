@@ -35,7 +35,7 @@ module  Yac
       load File.join(File.dirname(__FILE__), "..", "yac.gemspec");colorful("yac, version: " + VER,"notice")
     else show(args)
     end
-  #rescue
+  rescue
   end
 
   def init
@@ -228,7 +228,7 @@ module  Yac
     if stuff.size > 0
       stuff.each_index do |x|
         colorful("%2s" % (x+1).to_s,"line_number",false)
-        printf "%-24s\t" % [stuff[x].rstrip]
+        printf "%-22s\t" % [stuff[x].rstrip]
         print "\n" if (x+1)%3 == 0
       end
       printf "\n"
