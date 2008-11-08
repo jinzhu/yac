@@ -182,7 +182,7 @@ module  Yac
     path = (args =~ /^(@)/) ? [@main_path] : [@main_path , @pri_path]
     result = []
     path.each do |x|
-      result.concat(`find "#{x}" -type f -iwholename '#{x}*#{args.sub(/^@/,'').strip}*' -not -iwholename '*.git*'| sed 's/^.*\\/\\(private\\|main\\)\\//#{x=~/main/ ? '@':'' }/'`.to_a)
+      result.concat(`find "#{x}" -type f -iwholename '#{x}*#{args.gsub(/\//,'*/*').sub(/^@/,'').strip}*' -not -iwholename '*.git*'| sed 's/^.*\\/\\(private\\|main\\)\\//#{x=~/main/ ? '@':'' }/'`.to_a)
     end
 
     return result.empty? ? (colorful("Nothing Found About < #{args} >","warn")) :
