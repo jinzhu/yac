@@ -1,5 +1,5 @@
 GEM = "yac"
-VER = "1.1.1"
+VER = "1.1.2"
 DATE = %q{2008-10-28}
 AUTHOR = "Jinzhu Zhang"
 EMAIL = "wosmvp@gmail.com"
@@ -17,6 +17,7 @@ Gem::Specification.new do |s|
   s.author = AUTHOR
   s.date = DATE
   s.email = EMAIL
+  s.platform = Gem::Platform::Linux
   s.homepage = HOMEPAGE
   s.summary = SUMMARY
   s.description = s.summary
