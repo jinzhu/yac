@@ -17,17 +17,17 @@ class Git
   end
 
   def add(file,with_commit = true)
-    `cd '#@working_path' && git add file`
+    `cd '#@working_path' && git add '#{file}'`
     self.commit("#{clean_name(file)} Added") if with_commit
   end
 
   def edit(file,with_commit = true)
-    `cd '#@working_path' && git add file`
+    `cd '#@working_path' && git add '#{file}'`
     self.commit("#{clean_name(file)} Updated") if with_commit
   end
 
   def rm(file,with_commit=true)
-    `cd '#@working_path' && git rm -f file`
+    `cd '#@working_path' && git rm -f '#{file}'`
     self.commit("#{clean_name(file)} Removed") if with_commit
   end
 
