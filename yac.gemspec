@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.author = AUTHOR
   s.date = DATE
   s.email = EMAIL
-  s.platform = Gem::Platform::Linux
+  s.platform = Gem::Platform::RUBY
   s.homepage = HOMEPAGE
   s.summary = SUMMARY
   s.description = s.summary
