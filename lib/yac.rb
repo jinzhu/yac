@@ -167,7 +167,7 @@ module  Yac
 
   def rm_single(args)
     file = search_name(args,"Remove")
-    if confirm("You Are Removing #{file}.")
+    if file && confirm("You Are Removing #{file}.")
       @working_git.rm(file)
     end
   end
