@@ -188,16 +188,16 @@ module  Yac
   end
 
   def search_content(args)
-    args.sub!(/^"(.*)"/,'\1') #Remove the " for input Regex
     result = `find "#{@pri_path}" -iname '*.ch' -not -iwholename '*.git*' -exec grep -HniP '#{args}' '{}' \\;`.to_a
-    result.concat(`find "#{@main_path}" -iname '*.ch' -not -iwholename '*.git*' -exec grep -HniP '#{args}' '{}' \\;`.to_a)
+    result.concat(`find "#{@main_path}" -iname '*.ch' -not -iwholename '*.git*' -exec grep -HniP '#{args}' '{}' \\; | sed 's/^/@/g'`.to_a)
     all_result = []
     result.each do |x|
       stuff = x.split(':',3)
-      colorful(stuff[0],"filename",false)
+      filename = stuff[0].sub(/(@?).*\/(?:main|private)\/(.*)/,'\1'+'\2')
+      colorful(filename,"filename",false)
       colorful(stuff[1],"line_number",false)
       format_section(empha(stuff[2],nil,/((#{args}))/i),true)
-      all_result.concat(stuff[0].to_a)
+      all_result.concat(filename.to_a)
     end
     all_result.uniq!
     loop do
@@ -219,7 +219,7 @@ module  Yac
     return file.strip
   end
 
-  def confirm(*msg)
+  def confirm(*msg)control
     colorful("#{msg.to_s}\nAre You Sure (Y/N) (q to quit):","notice",false)
     return STDIN.gets.to_s =~ /n|q/i ? false : true
   end
