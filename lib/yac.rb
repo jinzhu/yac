@@ -32,7 +32,7 @@ module  Yac
     when "-m" then mv(args[1,args.size])
     else show(args)
     end
-  #rescue
+  rescue
   end
 
   def init

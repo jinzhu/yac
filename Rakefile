@@ -2,7 +2,7 @@ require 'rubygems'
 require 'rake'
 require 'echoe'
 
-Echoe.new('yac', '1.1.4') do |p|
+Echoe.new('yac', '1.2.0') do |p|
   p.description    = "Yet Another Cheat: sexy command line tool for cheat sheet."
   p.url            = "http://www.zhangjinzhu.com"
   p.author         = "Jinzhu Zhang"
