@@ -19,50 +19,50 @@
 === To show a cheat sheet:
     $ yac (show) [cheatsheet] ( you can use * for any chars)
     Eg:
-    $ yac show lin*x
-    $ yac show l/o/a    To show linux/gentoo/masked
+    $ yac lin*x
+    $ yac l/o/a    To show linux/gentoo/masked
 
 === To edit a cheat sheet
-    $ yac edit [cheatsheet] (Yes,you can use * for any chars also,then choose one to edit)
+    $ yac -e [cheatsheet] (Yes,you can use * for any chars also,then choose one to edit)
 
 === To add a cheat sheet
-    $ yac add [cheatsheet] (OMG,you can also use *)
+    $ yac -a [cheatsheet] (OMG,you can also use *)
     Eg:
-    $ yac li*x/install
+    $ yac -a li*x/install
     Then will display all directories match /li*x/,feel freely to choose one of them,
     A new file named install.ch will be added to the directory!
-    $ yac l/oo/install
+    $ yac -a l/oo/install
     Oh,no,you can choose linux/gentoo as the directory for the install file
 
 === To rm a cheat sheet
-    $ yac rm [cheatsheet] (Sure,you can use *)
+    $ yac -r [cheatsheet] (Sure,you can use *)
 
 === Search all sheets
-    $ yac search [keyword] (@@@Take Attention:@@@ You are allowed to use perl-like Regex)
+    $ yac -S [keyword] (@@@Take Attention:@@@ You are allowed to use perl-like Regex)
     Eg:
-    $ yac search lin.*x
+    $ yac -S lin.*x
     And Even:
-    $ yac search "r(uby|ails)"
+    $ yac -S "r(uby|ails)"
 
 === Update repositories
-    $ yac update main  => Update main repository
-    $ yac update all => Update all repositories
-    $ yac update => Update private repository
+    $ yac -u main  => Update main repository
+    $ yac -u all => Update all repositories
+    $ yac -u => Update private repository
 
 === Shell
-    $ yac sh main => Open the main repository's shell
-    $ yac sh => Open the private repository's shell
+    $ yac -s main => Open the main repository's shell
+    $ yac -s => Open the private repository's shell
 
 == Repository Push
-    $ yac push main => Push the main repository
-    $ yac push all => Push all repositories
-    $ yac push => Push the private repository
+    $ yac -p main => Push the main repository
+    $ yac -p all => Push all repositories
+    $ yac -p => Push the private repository
 
-== Rename a cheatsheet:
-    $ yac mv [orign_name] [new_name]
+== Rename/mv a cheatsheet:
+    $ yac -m [orign_name] [new_name]
 
 === Help (display this file)
-    $ yac help
+    $ yac -h
 
 === Documents format
    All text file add ".ch" as suffix for butter editor highlight

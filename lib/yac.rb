@@ -20,17 +20,16 @@ module  Yac
     init unless File.exist?(@main_path) && File.exist?(@pri_path)
     (help && exit) if args.empty?
     case args.first
-    when "show" then show(args[1,args.size])
-    when "search" then search(args[1,args.size])
-    when "update" then update(args[1,args.size])
-    when "push" then push(args[1,args.size])
-    when "log" then log(args[1,args.size])
-    when "add" then add(args[1,args.size])
-    when "edit" then edit(args[1,args.size])
+    when "-S" then search(args[1,args.size])
+    when "-u" then update(args[1,args.size])
+    when "-p" then push(args[1,args.size])
+    when "-l" then log(args[1,args.size])
+    when "-a" then add(args[1,args.size])
+    when "-e" then edit(args[1,args.size])
     when /^(help|-h|yac|--help)$/ then help
-    when "sh" then shell(args[1,args.size])
-    when "rm" then rm(args[1,args.size])
-    when "mv" then rename(args[1,args.size])
+    when "-s" then shell(args[1,args.size])
+    when "-r" then rm(args[1,args.size])
+    when "-m" then mv(args[1,args.size])
     else show(args)
     end
   #rescue
@@ -118,7 +117,7 @@ module  Yac
     end
   end
 
-  def rename(args)
+  def mv(args)
     (colorful("Usage:\nyac mv [orign_name] [new_name]\n\nTry `yac -h` for more help","warn");exit) unless args.size == 2
     file = search_name(args[0],"Rename")
     #You can use $ yac mv linux.ch linux/ to rename linux.ch to linux/linux.ch
@@ -219,7 +218,7 @@ module  Yac
     return file.strip
   end
 
-  def confirm(*msg)control
+  def confirm(*msg)
     colorful("#{msg.to_s}\nAre You Sure (Y/N) (q to quit):","notice",false)
     return STDIN.gets.to_s =~ /n|q/i ? false : true
   end

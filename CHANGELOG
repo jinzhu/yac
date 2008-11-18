@@ -1,3 +1,5 @@
+V1.2.0 <2008-11-9>
+  * modify all commands search => -S , add => -a ,edit => -e and so on
 V1.1.1 <2008-11-8>
   * $ yac l/oo/t           To choose linux/gentoo/install
   * $ yac add l/oo/t       To choose linux/gentoo/ As the directory for file t
