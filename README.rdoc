@@ -64,9 +64,6 @@
 === Help (display this file)
     $ yac help
 
-=== Version
-    $ yac -v | version
-
 === Documents format
    All text file add ".ch" as suffix for butter editor highlight
    (A very very simple vim script can be found here : http://www.vim.org/scripts/script.php?script_id=2399)

@@ -31,11 +31,9 @@ module  Yac
     when "sh" then shell(args[1,args.size])
     when "rm" then rm(args[1,args.size])
     when "mv" then rename(args[1,args.size])
-    when /^version|-v$/ then
-      load File.join(File.dirname(__FILE__), "..", "yac.gemspec");colorful("yac, version: " + VER,"notice")
     else show(args)
     end
-  rescue
+  #rescue
   end
 
   def init
@@ -191,8 +189,8 @@ module  Yac
 
   def search_content(args)
     args.sub!(/^"(.*)"/,'\1') #Remove the " for input Regex
-    result = `cd "#{@pri_path}" && grep -n -i -P '#{args}' -R *.ch 2>/dev/null`.to_a
-    result.concat(`cd "#{@main_path}" && grep -n -i -P '#{args}' -R *.ch 2>/dev/null | sed 's/^/@/g'`.to_a)
+    result = `find "#{@pri_path}" -iname '*.ch' -not -iwholename '*.git*' -exec grep -HniP '#{args}' '{}' \\;`.to_a
+    result.concat(`find "#{@main_path}" -iname '*.ch' -not -iwholename '*.git*' -exec grep -HniP '#{args}' '{}' \\;`.to_a)
     all_result = []
     result.each do |x|
       stuff = x.split(':',3)
