@@ -196,16 +196,15 @@ module  Yac
   end
 
   def search_content(args)
-    result = `find "#{@pri_path}" -iname '*.ch' -not -iwholename '*.git*' -exec grep -HniP '#{args}' '{}' \\;`.to_a
-    result.concat(`find "#{@main_path}" -iname '*.ch' -not -iwholename '*.git*' -exec grep -HniP '#{args}' '{}' \\; | sed 's/^/@/g'`.to_a)
+    result = `find "#{@pri_path}" -iname '*.ch' -not -iwholename '*\/.git\/*' -exec grep -HniP '#{args}' '{}' \\;`.to_a
+    result.concat(`find "#{@main_path}" -iname '*.ch' -not -iwholename '*\/.git\/*' -exec grep -HniP '#{args}' '{}' \\; | sed 's/^/@/g'`.to_a)
     all_result = []
     result.each do |x|
       stuff = x.split(':',3)
-      filename = stuff[0].sub(/(@?).*\/(?:main|private)\/(.*)/,'\1'+'\2')
-      colorful(filename,"filename",false)
+      colorful(File.basename(stuff[0]).sub(/\..*/,''),"filename",false)
       colorful(stuff[1],"line_number",false)
       format_section(empha(stuff[2],nil,/((#{args}))/i),true)
-      all_result.concat(filename.to_a)
+      all_result << stuff[0].sub(/(@?).*\/(?:main|private)\/(.*)/,'\1'+'\2')
     end
     all_result.uniq!
     loop do
