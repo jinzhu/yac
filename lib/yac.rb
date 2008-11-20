@@ -4,7 +4,7 @@ $LOAD_PATH << File.dirname(__FILE__)
 module  Yac
   include Format
   extend self
-  VERSION = '1.3.0'
+  VERSION = '1.3.1'
   YACRC = File.join("#{ENV['HOME']}",".yacrc")
 
   FileUtils.cp(File.join(File.dirname(__FILE__), "..","resources","yacrc"), YACRC) unless File.exist?(YACRC)
