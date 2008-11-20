@@ -34,7 +34,7 @@ module  Yac
     when "-v" then colorful("Yac Version: #{Yac::VERSION}",'notice')
     else show(args)
     end
-  rescue
+  #rescue
   end
 
   def init
@@ -112,10 +112,10 @@ module  Yac
     case args.to_s
     when /main/
       colorful(" Welcome To The Main Yac Repository","notice")
-      system "cd \"#{@main_path}\"; sh"
+      system "cd '#{@main_path}'; sh"
     else
       colorful(" Welcome To The Private Yac Repository","notice")
-      system "cd \"#{@pri_path}\"; sh"
+      system "cd '#{@pri_path}'; sh"
     end
   end
 
@@ -173,8 +173,10 @@ module  Yac
 
   def edit_single(args)
     file = search_name(args,"Edit")
-    edit_file(file)
-    @working_git.edit(file)
+    if file
+      edit_file(file)
+      @working_git.edit(file)
+    end
   end
 
   def search_name(args,msg = nil)
