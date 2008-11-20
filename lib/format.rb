@@ -17,7 +17,7 @@ module Format
       puts Pdf_Error unless system("#{Yac::CONFIG["pdf_command"]||'evince'} '#{file}' 2>/dev/null")
     when /( image )|(\.svg)/
       puts Image_Error unless system("#{Yac::CONFIG["image_command"]||'eog'} '#{file}' 2>/dev/null")
-    #FIXME add office support
+    #TODO add office support
     else
       File.new(file).each do |x|
         format_section(x)
@@ -41,6 +41,7 @@ module Format
       puts Pdf_Error unless system("#{Yac::CONFIG["pdf_edit_command"]||'ooffice'} '#{file}' 2>/dev/null")
     when /( image )|(\.svg)/
       puts Image_Error unless system("#{Yac::CONFIG["image_edit_command"]||'gimp'} '#{file}' 2>/dev/null")
+    #TODO and Edit
     else
       edit_text(file)
     end
@@ -64,7 +65,6 @@ module Format
   end
 
   def prepare_dir(file)
-    dirseparator = file.rindex(File::Separator)+1
-    FileUtils.mkdir_p(file[0,dirseparator])
+    FileUtils.mkdir_p(File.dirname(file))
   end
 end
