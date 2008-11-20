@@ -183,11 +183,16 @@ module  Yac
     path = (args =~ /^(@)/) ? [@main_path] : [@main_path , @pri_path]
     result = []
     path.each do |x|
-      result.concat(`find "#{x}" -type f -iwholename '#{x}*#{args.gsub(/\//,'*/*').sub(/^@/,'').strip}*' -not -iwholename '*.git*'| sed 's/^.*\\/\\(private\\|main\\)\\//#{x=~/main/ ? '@':'' }/'`.to_a)
+      result.concat(`find "#{x}" -type f -iwholename '#{x}*#{args.gsub(/\//,'*/*').sub(/^@/,'').strip}*' -not -iwholename '*\/.git\/*'| sed 's/^.*\\/\\(private\\|main\\)\\//#{x=~/main/ ? '@':'' }/'`.to_a)
     end
 
-    return result.empty? ? (colorful("Nothing Found About < #{args} >","warn")) :
-      (colorful("The Results About < #{args} > To #{msg || "Operate"} :","notice");full_path(choose_one(result)))
+    if result.empty?
+      colorful("Nothing Found About < #{args} >","warn")
+      return false
+    else
+      colorful("The Results About < #{args} > To #{msg} :","notice")
+      return full_path(choose_one(result))
+    end
   end
 
   def search_content(args)
