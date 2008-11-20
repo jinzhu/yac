@@ -3,7 +3,7 @@ $:.unshift File.dirname(__FILE__)
 module  Yac
   include Format
   extend self
-
+  VERSION = '1.2.0'
   YACRC = File.join("#{ENV['HOME']}",".yacrc")
 
   FileUtils.cp(File.join(File.dirname(__FILE__), "..","resources","yacrc"), YACRC) unless File.exist?(YACRC)
@@ -30,6 +30,7 @@ module  Yac
     when "-s" then shell(args[1,args.size])
     when "-r" then rm(args[1,args.size])
     when "-m" then mv(args[1,args.size])
+    when "-v" then colorful("Yac Version: #{Yac::VERSION}",'notice')
     else show(args)
     end
   rescue
