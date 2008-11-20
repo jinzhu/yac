@@ -26,11 +26,14 @@ module Format
   rescue
   end
 
-  def format_section(section)
+  def format_section(section,empha_regexp = false)
     if section =~ /^(=+)\s+(.*)/
-      level = $1.size
-      colorful("\s"*(level-1) + $2,"head#{level}")
+      level,stuff = $1.size,$2
+      # Highlight the keyword when searching
+      stuff = empha(stuff,"head#{level}",empha_regexp) if empha_regexp
+      colorful("\s"*(level-1) + stuff,"head#{level}")
     else
+      section = empha(section,"text",empha_regexp) if empha_regexp
       colorful(section)
     end
   end
@@ -58,9 +61,9 @@ module Format
     print "\n" if line_break
   end
 
-  def empha(stuff,level="text",empha_regexp=/(@@@(.*)@@@)/)
+  def empha(stuff,level="text",empha_regexp=/(@(.*)@)/)
     stuff.to_s.scan(empha_regexp) do |x|
-      return stuff.gsub(x[0],"\e[0m\e[#{Yac::CONFIG["empha"].to_s}m%s\e[0m\e[%sm" % [x[1],Yac::CONFIG[level]])
+      return stuff.gsub(x[0],"\e[0m\e[#{Yac::CONFIG["empha"]}m%s\e[0m\e[%sm" % [x[1],Yac::CONFIG[level]])
     end
   end
 

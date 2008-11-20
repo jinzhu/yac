@@ -1,5 +1,5 @@
 =  YAC => Yet Another Cheet (Powered By Ruby)
-  YAC was inspired by 'chit' (http://github.com/robin/chit) by robin and 'cheat' (http://cheat.errtheblog.com/) by Chris Wanstrath,But @@@Colorful and Sexy!!!@@@
+  YAC was inspired by 'chit' (http://github.com/robin/chit) by robin and 'cheat' (http://cheat.errtheblog.com/) by Chris Wanstrath,But @Colorful and Sexy!!!@
 
 == What?
   Cheat sheet is a concise set of notes used for quick reference.
@@ -38,9 +38,10 @@
     $ yac -r [cheatsheet] (Sure,you can use *)
 
 === Search all sheets
-    $ yac -S [keyword] (@@@Take Attention:@@@ You are allowed to use perl-like Regex)
+    $ yac -S [keyword] (@Take Attention:@ You are allowed to use perl-like Regex)
     Eg:
     $ yac -S lin.*x
+    $ yac -S '\$:'    To Search $:
     And Even:
     $ yac -S "r(uby|ails)"
 
@@ -73,9 +74,7 @@
 
    At the beginning of the row,plus N = for the N-class title
 
-   Use '#' at the beginning of a row to comment the line,You can use '\#' for '#'
-
-   Words wrapped by three @ for highlight
+   Words wrapped by @ for highlight
 
 === The configure file
    Default use $HOME/.yacrc , See the example file under resources directory

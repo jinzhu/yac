@@ -203,7 +203,7 @@ module  Yac
       stuff = x.split(':',3)
       colorful(File.basename(stuff[0]).sub(/\..*/,''),"filename",false)
       colorful(stuff[1],"line_number",false)
-      format_section(empha(stuff[2],nil,/((#{args}))/i))
+      format_section(stuff[2],/((#{args}))/i)
       all_result << stuff[0].sub(/(@?).*\/(?:main|private)\/(.*)/,'\1'+'\2')
     end
     all_result.uniq!
