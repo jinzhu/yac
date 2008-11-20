@@ -14,9 +14,9 @@ module Format
     colorful(file,"filename") if file
     case `file "#{file}" 2>/dev/null`
     when / PDF document/
-      puts Pdf_Error unless system("#{Yac::CONFIG["pdf_command"]||'evince'} '#{file}' 2>/dev/null")
+      colorful(Pdf_Error,'warn') unless system("#{Yac::CONFIG["pdf_command"]||'evince'} '#{file}' 2>/dev/null")
     when /( image )|(\.svg)/
-      puts Image_Error unless system("#{Yac::CONFIG["image_command"]||'eog'} '#{file}' 2>/dev/null")
+      colorful(Image_Error,'warn') unless system("#{Yac::CONFIG["image_command"]||'eog'} '#{file}' 2>/dev/null")
     when /Office Document/
       open_office(file)
     else
@@ -45,9 +45,9 @@ module Format
   def edit_file(file)
     case `file "#{file}" 2>/dev/null`
     when / PDF /
-      puts Pdf_Error unless system("#{Yac::CONFIG["pdf_edit_command"]||'ooffice'} '#{file}' 2>/dev/null")
+      colorful(Pdf_Error,'warn') unless system("#{Yac::CONFIG["pdf_edit_command"]||'ooffice'} '#{file}' 2>/dev/null")
     when /( image )|(\.svg)/
-      puts Image_Error unless system("#{Yac::CONFIG["image_edit_command"]||'gimp'} '#{file}' 2>/dev/null")
+      colorful(Image_Error,'warn') unless system("#{Yac::CONFIG["image_edit_command"]||'gimp'} '#{file}' 2>/dev/null")
     when /Office Document/
       open_office(file)
     else
@@ -60,12 +60,12 @@ module Format
   end
 
   def open_office(file)
-    puts Office_Error unless system("#{Yac::CONFIG["office_command"]||'ooffice'} '#{file}' 2>/dev/null")
+    colorful(Office_Error,'warn') unless system("#{Yac::CONFIG["office_command"]||'ooffice'} '#{file}' 2>/dev/null")
   end
 
   def edit_text(file)
     prepare_dir(file)
-    puts Doc_Error unless system("#{Yac::CONFIG["editor"] || ENV['EDITOR'] ||'vim'} '#{file}' 2>/dev/null")
+    colorful(Doc_Error,'warn') unless system("#{Yac::CONFIG["editor"] || ENV['EDITOR'] ||'vim'} '#{file}' 2>/dev/null")
   end
 
   def colorful(stuff,level="text",line_break = true)
