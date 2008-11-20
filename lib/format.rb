@@ -14,9 +14,10 @@ module Format
     colorful(file,"filename") if file
     case `file "#{file}" 2>/dev/null`
     when / PDF document/
-      puts Pdf_Error unless system("#{Yac::CONFIG["pdf_command"]||'evince'} \"#{file}\" 2>/dev/null")
+      puts Pdf_Error unless system("#{Yac::CONFIG["pdf_command"]||'evince'} '#{file}' 2>/dev/null")
     when /( image )|(\.svg)/
-      puts Image_Error unless system("#{Yac::CONFIG["image_command"]||'eog'} \"#{file}\" 2>/dev/null")
+      puts Image_Error unless system("#{Yac::CONFIG["image_command"]||'eog'} '#{file}' 2>/dev/null")
+    #FIXME add office support
     else
       File.new(file).each do |x|
         format_section(x)
@@ -25,24 +26,21 @@ module Format
   rescue
   end
 
-  def format_section(section,search = false)
-    case section
-    when /^(=+)\s+(.*)/
-      @level = search ? 1 : $1.size
-      colorful("\s"*2*(@level-1) + $2,"head#{@level}")
-    when /^(\s*)#/
-      colorful(section.sub(/^\s*/,'')) if search
+  def format_section(section)
+    if section =~ /^(=+)\s+(.*)/
+      level = $1.size
+      colorful("\s"*(level-1) + $2,"head#{level}")
     else
-      colorful(section.sub(/^\#/,"#").sub(/^\s*/, "\s" * ( @level||0 ) * 2 ))
+      colorful(section)
     end
   end
 
   def edit_file(file)
     case `file "#{file}" 2>/dev/null`
     when / PDF /
-      puts Pdf_Error unless system("#{Yac::CONFIG["pdf_edit_command"]||'ooffice'} \"#{file}\" 2>/dev/null")
+      puts Pdf_Error unless system("#{Yac::CONFIG["pdf_edit_command"]||'ooffice'} '#{file}' 2>/dev/null")
     when /( image )|(\.svg)/
-      puts Image_Error unless system("#{Yac::CONFIG["image_edit_command"]||'gimp'} \"#{file}\" 2>/dev/null")
+      puts Image_Error unless system("#{Yac::CONFIG["image_edit_command"]||'gimp'} '#{file}' 2>/dev/null")
     else
       edit_text(file)
     end
@@ -50,7 +48,7 @@ module Format
 
   def edit_text(file)
     prepare_dir(file)
-    puts Doc_Error unless system("#{Yac::CONFIG["editor"] || ENV['EDITOR'] ||'vim'} \"#{file}\" 2>/dev/null")
+    puts Doc_Error unless system("#{Yac::CONFIG["editor"] || ENV['EDITOR'] ||'vim'} '#{file}' 2>/dev/null")
   end
 
   def colorful(stuff,level="text",line_break = true)
