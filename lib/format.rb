@@ -7,23 +7,27 @@ end
 module Format
   Pdf_Error = "Please Modify ~/.yacrc To Provide A Valid Command To Operate PDF Document"
   Image_Error = "Please Modify ~/.yacrc To Provide A Valid Command To Operate Image Document"
+  Office_Error = "Please Modify ~/.yacrc To Provide A Valid Command To Operate Office Document"
   Doc_Error = "Please Modify ~/.yacrc To Provide A Valid Command To Operate Text Document"
 
   def format_file(file)
-    @level = 0
     colorful(file,"filename") if file
     case `file "#{file}" 2>/dev/null`
     when / PDF document/
       puts Pdf_Error unless system("#{Yac::CONFIG["pdf_command"]||'evince'} '#{file}' 2>/dev/null")
     when /( image )|(\.svg)/
       puts Image_Error unless system("#{Yac::CONFIG["image_command"]||'eog'} '#{file}' 2>/dev/null")
-    #TODO add office support
+    when /Office Document/
+      open_office(file)
     else
-      File.new(file).each do |x|
-        format_section(x)
+      if File.extname(file) =~ /^\.(od[tfspg]|uof)$/ #Support odf uof ods odp...
+        open_office(file)
+      else
+        File.new(file).each do |x|
+          format_section(x)
+        end
       end
     end
-  rescue
   end
 
   def format_section(section,empha_regexp = false)
@@ -44,10 +48,19 @@ module Format
       puts Pdf_Error unless system("#{Yac::CONFIG["pdf_edit_command"]||'ooffice'} '#{file}' 2>/dev/null")
     when /( image )|(\.svg)/
       puts Image_Error unless system("#{Yac::CONFIG["image_edit_command"]||'gimp'} '#{file}' 2>/dev/null")
-    #TODO and Edit
+    when /Office Document/
+      open_office(file)
     else
-      edit_text(file)
+      if File.extname(file) =~ /^\.(od[tfspg]|uof)$/ #Support odf uof ods odp...
+        open_office(file)
+      else
+        edit_text(file)
+      end
     end
+  end
+
+  def open_office(file)
+    puts Office_Error unless system("#{Yac::CONFIG["office_command"]||'ooffice'} '#{file}' 2>/dev/null")
   end
 
   def edit_text(file)

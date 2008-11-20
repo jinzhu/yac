@@ -1,12 +1,22 @@
-V1.2.0 <2008-11-9>
+=== 1.3.0 / 2008-11-20
+
+  * add office support (odf,odp,ods,uof,doc...)
+  * words wrapped by @ to highlight
+  * Fix some minor bug.
+
+=== 1.2.0 / 2008-11-18
+
   * modify all commands search => -S , add => -a ,edit => -e and so on
-V1.1.1 <2008-11-8>
+
+=== 1.1.1 / 2008-11-8
+
   * $ yac l/oo/t           To choose linux/gentoo/install
   * $ yac add l/oo/t       To choose linux/gentoo/ As the directory for file t
 
-V1.1.0 <2008-11-8>
+=== 1.1.0 / 2008-11-8
+
   * Don't need schacon-git anymore
   * When Choose files You can Just press enter to choose the first one
   * When Confirm You can Just press enter to answer Yes
 
-Version Below V1.1.0 Please See README
+Version previous 1.1.0 Please See README

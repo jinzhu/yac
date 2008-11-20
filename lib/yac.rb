@@ -34,7 +34,6 @@ module  Yac
     when "-v" then colorful("Yac Version: #{Yac::VERSION}",'notice')
     else show(args)
     end
-  #rescue
   end
 
   def init
