@@ -15,7 +15,7 @@ module Format
     case `file "#{file}" 2>/dev/null`
     when / PDF document/
       colorful(Pdf_Error,'warn') unless system("#{Yac::CONFIG["pdf_command"]||'evince'} '#{file}' 2>/dev/null")
-    when /( image )|(\.svg)/
+    when /( image)|( bitmap)|(\.svg)/
       colorful(Image_Error,'warn') unless system("#{Yac::CONFIG["image_command"]||'eog'} '#{file}' 2>/dev/null")
     when /Office Document/
       open_office(file)
