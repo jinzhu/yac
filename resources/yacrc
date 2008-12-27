@@ -7,12 +7,14 @@ private:
 #  clone-from:
 #  push-to:
 
-pdf_command: evince
-office_command: ooffice
-#image_command: evince
-#editor: vim
-#pdf_edit_command: ooffice
-#image_edit_command: gimp
+editor:	      vim
+
+view_pdf:     evince
+view_image:   eog
+view_office:  ooffice
+
+edit_pdf:     ooffice
+edit_image:   gimp
 
 head1: "1;31"
 head2: "1;36"

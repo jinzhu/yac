@@ -1,20 +1,20 @@
 module Format
-  Pdf_Error = "Please Modify ~/.yacrc To Provide A Valid Command To Operate PDF Document"
-  Image_Error = "Please Modify ~/.yacrc To Provide A Valid Command To Operate Image Document"
-  Office_Error = "Please Modify ~/.yacrc To Provide A Valid Command To Operate Office Document"
-  Doc_Error = "Please Modify ~/.yacrc To Provide A Valid Command To Operate Text Document"
+  Pdf_Err    = "Please Modify ~/.yacrc To Provide A Valid Command To Operate PDF Document"
+  Image_Err  = "Please Modify ~/.yacrc To Provide A Valid Command To Operate Image Document"
+  Office_Err = "Please Modify ~/.yacrc To Provide A Valid Command To Operate Office Document"
+  Doc_Err    = "Please Modify ~/.yacrc To Provide A Valid Command To Operate Text Document"
 
   def format_file(file)
     colorful(file,"filename") if file
     case `file "#{file}" 2>/dev/null`
     when / PDF document/
-      colorful(Pdf_Error,'warn') unless system("#{Yac::CONFIG["pdf_command"]||'evince'} '#{file}' 2>/dev/null")
+      colorful(Pdf_Err,'warn') unless system("#{Yac::CONFIG["pdf_command"]} '#{file}' ")
     when /( image)|( bitmap)|(\.svg)/
-      colorful(Image_Error,'warn') unless system("#{Yac::CONFIG["image_command"]||'eog'} '#{file}' 2>/dev/null")
+      colorful(Image_Err,'warn') unless system("#{Yac::CONFIG["image_command"]} '#{file}'")
     when /Office Document/
       open_office(file)
     else
-      if File.extname(file) =~ /^\.(od[tfspg]|uof)$/ #Support odf uof ods odp...
+      if File.extname(file) =~ /^\.(od[tfspg]|uof)$/ # FileType: odf uof ods odp ...
         open_office(file)
       else
         File.new(file).each do |x|
@@ -39,9 +39,9 @@ module Format
   def edit_file(file)
     case `file "#{file}" 2>/dev/null`
     when / PDF /
-      colorful(Pdf_Error,'warn') unless system("#{Yac::CONFIG["pdf_edit_command"]||'ooffice'} '#{file}' 2>/dev/null")
+      colorful(Pdf_Err,'warn') unless system("#{Yac::CONFIG["pdf_edit_command"]||'ooffice'} '#{file}' 2>/dev/null")
     when /( image )|(\.svg)/
-      colorful(Image_Error,'warn') unless system("#{Yac::CONFIG["image_edit_command"]||'gimp'} '#{file}' 2>/dev/null")
+      colorful(Image_Err,'warn') unless system("#{Yac::CONFIG["image_edit_command"]||'gimp'} '#{file}' 2>/dev/null")
     when /Office Document/
       open_office(file)
     else
@@ -54,12 +54,12 @@ module Format
   end
 
   def open_office(file)
-    colorful(Office_Error,'warn') unless system("#{Yac::CONFIG["office_command"]||'ooffice'} '#{file}' 2>/dev/null")
+    colorful(Office_Err,'warn') unless system("#{Yac::CONFIG["office_command"]||'ooffice'} '#{file}' 2>/dev/null")
   end
 
   def edit_text(file)
     prepare_dir(file)
-    colorful(Doc_Error,'warn') unless system("#{Yac::CONFIG["editor"] || ENV['EDITOR'] ||'vim'} '#{file}' 2>/dev/null")
+    colorful(Doc_Err,'warn') unless system("#{Yac::CONFIG["editor"] || ENV['EDITOR'] ||'vim'} '#{file}' 2>/dev/null")
   end
 
   def colorful(stuff,level="text",line_break = true)
