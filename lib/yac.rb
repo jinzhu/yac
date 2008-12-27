@@ -160,7 +160,7 @@ module  Yac
   end
 
   def search_name(args,msg = nil)
-    path = (args =~ /^(@)/) ? [@main_path] : [@main_path , @pri_path]
+    path = (args =~ /^(@)/) ? [@pri_path] : [@main_path , @pri_path]
     result = []
     path.each do |x|
       result.concat(`find "#{x}" -type f -iwholename '#{x}*#{args.gsub(/\//,'*/*').sub(/^@/,'').strip}*' -not -iwholename '*\/.git\/*'| sed 's/^.*\\/\\(private\\|main\\)\\//#{x=~/main/ ? '@':'' }/'`.to_a)
