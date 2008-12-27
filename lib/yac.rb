@@ -141,7 +141,7 @@ module  Yac
   end
 
   def log(args)
-    git_command(args,'log --color --date-order --reverse')
+    git_command(args,'log --color')
   end
 
   def git_command(env,command)
@@ -203,7 +203,7 @@ module  Yac
   end
 
   def confirm(*msg)
-    colorful("#{msg.to_s}\nAre You Sure (Y/N) (q to quit):","notice",false)
+    colorful("#{msg.to_s}\nAre You Sure (Y/N) (q:quit):","notice",false)
     return STDIN.gets.to_s =~ /n|q/i ? false : true
   end
 
@@ -223,7 +223,7 @@ module  Yac
 
   #choose a valid number
   def choose_range(size)
-    colorful("Please Input A Valid Number To Choose (1..#{size}) (q to quit): ","notice",false)
+    colorful("Please Input A Valid Number (1..#{size}) (q:quit): ","notice",false)
     num = STDIN.gets
     return false if num =~ /q/i
     choosed_num = num.strip.empty? ? 1 : num.to_i
