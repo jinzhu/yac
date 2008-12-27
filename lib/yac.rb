@@ -101,7 +101,7 @@ module  Yac
     (colorful("Usage:\nyac mv [orign_name] [new_name]","warn");exit) unless args.size == 2
     file = search_name(args[0],"Rename")
 
-    # You can use $ yac mv linux.ch linux/ to rename linux.ch to linux/linux.ch
+    # You can use $ yac mv linux linux/ to rename linux to linux/linux
     new_filename = args[1] =~ /\/$/ ? args[1] : args[1] + file.match(/[^\/]$/).to_s
     new_filename = '@' + new_filename if file =~ /^#{@main_path}/
     new_name = add_file(new_filename)
@@ -163,7 +163,9 @@ module  Yac
     path = (args =~ /^(@)/) ? [@pri_path] : [@main_path , @pri_path]
     result = []
     path.each do |x|
-      result.concat(`find "#{x}" -type f -iwholename '#{x}*#{args.gsub(/\//,'*/*').sub(/^@/,'').strip}*' -not -iwholename '*\/.git\/*'| sed 's/^.*\\/\\(private\\|main\\)\\//#{x=~/main/ ? '@':'' }/'`.to_a)
+      result.concat( %x{
+        find -L "#{x}" -type f -iwholename '#{x}*#{args.gsub(/\//,'*/*').sub(/^@/,'').strip}*' -not -iwholename '*\/.git\/*'| sed 's/^.*\\/\\(private\\|main\\)\\//#{x=~/main/ ? '@':'' }/'
+      }.to_a )
     end
 
     if result.empty?
@@ -176,8 +178,10 @@ module  Yac
   end
 
   def search_content(args)
-    result = `find "#{@pri_path}" -iname '*.ch' -not -iwholename '*\/.git\/*' -exec grep -HniP '#{args}' '{}' \\;`.to_a
-    result.concat(`find "#{@main_path}" -iname '*.ch' -not -iwholename '*\/.git\/*' -exec grep -HniP '#{args}' '{}' \\; | sed 's/^/@/g'`.to_a)
+    # Too slow
+    # find -type f -exec sh -c 'file="{}";type=$(file $file);[[ $type =~ " text" ]] && echo $file' \;
+    result = `find "#{@pri_path}" -not -iwholename '*\/.git\/*' | grep -E '*\.[ch|yac|yml]'| xargs grep -HniP '#{args}'`.to_a
+    result.concat(`find "#{@main_path}" -not -iwholename '*\/.git\/*' | grep -E '*\.[ch|yac|yml]'| xargs grep -HniP '#{args}' | sed 's/^/@/g'`.to_a)
     all_result = []
     result.each do |x|
       stuff = x.split(':',3)
