@@ -88,13 +88,12 @@ module  Yac
   end
 
   def shell(args)
-    case args.to_s
-    when /main/
+    if args.to_s =~ /main/
       colorful(" Welcome To The Main Yac Repository","notice")
-      system "cd '#{@main_path}'; sh"
+      system("cd '#{@main_path}'; sh")
     else
       colorful(" Welcome To The Private Yac Repository","notice")
-      system "cd '#{@pri_path}'; sh"
+      system("cd '#{@pri_path}'; sh")
     end
   end
 
