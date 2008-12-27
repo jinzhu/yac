@@ -11,10 +11,10 @@ editor:	      vim
 
 view_pdf:     evince
 view_image:   eog
-view_office:  ooffice
 
 edit_pdf:     ooffice
 edit_image:   gimp
+edit_office:  ooffice
 
 head1: "1;31"
 head2: "1;36"

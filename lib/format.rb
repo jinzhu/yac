@@ -8,9 +8,9 @@ module Format
     colorful(file,"filename") if file
     case `file "#{file}" 2>/dev/null`
     when / PDF document/
-      colorful(Pdf_Err,'warn') unless system("#{Yac::CONFIG["pdf_command"]} '#{file}' ")
+      colorful(Pdf_Err,'warn') unless system("#{Yac::CONFIG["view_pdf"]} '#{file}' ")
     when /( image)|( bitmap)|(\.svg)/
-      colorful(Image_Err,'warn') unless system("#{Yac::CONFIG["image_command"]} '#{file}'")
+      colorful(Image_Err,'warn') unless system("#{Yac::CONFIG["view_image"]} '#{file}'")
     when /Office Document/
       open_office(file)
     else
@@ -39,13 +39,13 @@ module Format
   def edit_file(file)
     case `file "#{file}" 2>/dev/null`
     when / PDF /
-      colorful(Pdf_Err,'warn') unless system("#{Yac::CONFIG["pdf_edit_command"]||'ooffice'} '#{file}' 2>/dev/null")
+      colorful(Pdf_Err,'warn')   unless system("#{Yac::CONFIG["edit_pdf"]} '#{file}'")
     when /( image )|(\.svg)/
-      colorful(Image_Err,'warn') unless system("#{Yac::CONFIG["image_edit_command"]||'gimp'} '#{file}' 2>/dev/null")
+      colorful(Image_Err,'warn') unless system("#{Yac::CONFIG["edit_image"]} '#{file}'")
     when /Office Document/
       open_office(file)
     else
-      if File.extname(file) =~ /^\.(od[tfspg]|uof)$/ #Support odf uof ods odp...
+      if File.extname(file) =~ /^\.(od[tfspg]|uof)$/ # FileType: odf uof ods odp...
         open_office(file)
       else
         edit_text(file)
@@ -54,12 +54,12 @@ module Format
   end
 
   def open_office(file)
-    colorful(Office_Err,'warn') unless system("#{Yac::CONFIG["office_command"]||'ooffice'} '#{file}' 2>/dev/null")
+    colorful(Office_Err,'warn') unless system("#{Yac::CONFIG["edit_office"]} '#{file}'")
   end
 
   def edit_text(file)
-    prepare_dir(file)
-    colorful(Doc_Err,'warn') unless system("#{Yac::CONFIG["editor"] || ENV['EDITOR'] ||'vim'} '#{file}' 2>/dev/null")
+    # FIXME prepare_dir(file)
+    colorful(Doc_Err,'warn') unless system("#{Yac::CONFIG["editor"]||ENV['EDITOR']} '#{file}'")
   end
 
   def colorful(stuff,level="text",line_break = true)
@@ -70,7 +70,7 @@ module Format
 
   def empha(stuff,level="text",empha_regexp=/(@(.*)@)/)
     stuff.to_s.scan(empha_regexp) do |x|
-      return stuff.gsub(x[0],"\e[0m\e[#{Yac::CONFIG["empha"]}m%s\e[0m\e[%sm" % [x[1],Yac::CONFIG[level]])
+      return stuff.gsub(x[0],"\e[#{Yac::CONFIG["empha"]}m%s\e[%sm" % [x[1],Yac::CONFIG[level]])
     end
   end
 
