@@ -157,6 +157,10 @@ module  Yac
     end
   end
 
+  #
+  # Search
+  #
+
   def search_name(args,msg = nil)
     path = (args =~ /^(@)/) ? [@pri_path] : [@main_path , @pri_path]
     result = []
@@ -207,21 +211,25 @@ module  Yac
     return STDIN.gets.to_s =~ /n|q/i ? false : true
   end
 
-  def choose_one(stuff)
-    return false unless stuff.size > 0
+  def choose_one(args)
+    return false unless args.size > 0
 
-    # FIXME truncate
-    stuff.each_index do |x|
-      colorful("%2s" % (x+1).to_s,"line_number",false)
-      printf "%-22s\t" % [stuff[x].rstrip]
+    args.each_index do |x|
+      printf "\e[%dm%3s\e[0m" % [args[x] =~ /^@/ ? 36:34,x+1]
+      printf " %-22s" % [trancate_filename(args[x].strip)]
       print "\n" if (x+1)%3 == 0
     end
-    printf "\n"
-    num = choose_range(stuff.size)
-    return num ? stuff[num-1].to_s.strip : false     #return the filename
+    puts "\n" if args.size%3 != 0
+
+    num = choose_range(args.size)
+    return num ? args[num-1].to_s.strip : false     #return the filename
   end
 
-  #choose a valid number
+  def trancate_filename(name)
+    name.sub!(/\..*$/,'').sub!(/^@/,'')
+    content = name.size > 22 ? '..' + name.reverse[0,20].reverse : name
+  end
+
   def choose_range(size)
     colorful("Please Input A Valid Number (1..#{size}) (q:quit): ","notice",false)
     num = STDIN.gets
