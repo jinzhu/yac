@@ -39,17 +39,15 @@ module  Yac
   end
 
   def init
-    FileUtils.mkdir_p(CONFIG['root'])
     {"main" => @main_path,"private" => @pri_path}.each do |name,path|
       if File.exist?(path)
         colorful("#{name} repository has already initialized.","notice")
       else
         if CONFIG["#{name}"] && CONFIG["#{name}"]['clone-from']
-          colorful("Initialize #{name} repository from #{CONFIG[name]['clone-from']} to #{CONFIG['root']}/#{name}","notice")
-          Git.clone(CONFIG["#{name}"]['clone-from'],CONFIG['root'],name)
+          colorful("Initialize #{name} repository from #{CONFIG[name]['clone-from']}","notice")
+          Git.clone(CONFIG["#{name}"]['clone-from'],path)
         else
-          colorful("Initialize #{name} repository from scratch to #{CONFIG['root']}/#{name}","notice")
-          prepare_dir(path)
+          colorful("Initialize #{name} repository from scratch","notice")
           Git.init(path)
         end
       end

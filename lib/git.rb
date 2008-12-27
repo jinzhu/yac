@@ -3,12 +3,13 @@ class Git
     @working_path = path
   end
 
-  def self.clone(from,path,name)
-   `cd #{path} && git clone #{from} #{name}`
+  def self.clone(from,path)
+   system("git clone #{from} #{path}")
   end
 
   def self.init(path)
-   `cd #{path} && git init`
+   system("mkdir -p #{path}")
+   system("cd #{path} && git init")
   end
 
   def mv(orig,new,with_commit = true)
