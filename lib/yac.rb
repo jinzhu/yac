@@ -190,7 +190,7 @@ module  Yac
     end
     all_result.uniq!
     loop do
-      colorful("All files Contain #{args.strip},Choose one to show","notice")
+      colorful("All files Contain #{args.strip}","notice")
       file = full_path(choose_one(all_result))
       file ? format_file(file) : break
     end
@@ -208,17 +208,16 @@ module  Yac
   end
 
   def choose_one(stuff)
-    if stuff.size > 0
-      stuff.each_index do |x|
-        colorful("%2s" % (x+1).to_s,"line_number",false)
-        printf "%-22s\t" % [stuff[x].rstrip]
-        print "\n" if (x+1)%3 == 0
-      end
-      printf "\n"
-      num = choose_range(stuff.size)
-      return stuff[num-1].to_s.strip #return the filename
+    return false unless stuff.size > 0
+
+    stuff.each_index do |x|
+      colorful("%2s" % (x+1).to_s,"line_number",false)
+      printf "%-22s\t" % [stuff[x].rstrip]
+      print "\n" if (x+1)%3 == 0
     end
-  rescue #Rescue for user input q to quit
+    printf "\n"
+    num = choose_range(stuff.size)
+    return num ? stuff[num-1].to_s.strip : false     #return the filename
   end
 
   #choose a valid number
