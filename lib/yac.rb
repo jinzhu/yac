@@ -15,8 +15,6 @@ module  Yac
 
   @main_path = File.join(CONFIG["root"],"/main/")
   @pri_path  = File.join(CONFIG["root"],"/private/")
-  @main_git  = Git.new(@main_path)
-  @pri_git   = Git.new(@pri_path)
 
   def new(args)
     (help && exit) if args.empty?
@@ -64,7 +62,7 @@ module  Yac
     file = add_file(args,'.yac')
     if file && confirm("You Are Adding #{file}")
       edit_text(file)
-      @working_git.add(file)
+      Git.add(file)
     end
   end
 
@@ -72,14 +70,14 @@ module  Yac
     file = search_name(args,"Edit")
     if file
       edit_file(file)
-      @working_git.edit(file)
+      Git.edit(file)
     end
   end
 
   def rm(args)
     file = search_name(args,"Remove")
     if file && confirm("You Are Removing #{file}.")
-      @working_git.rm(file)
+      Git.rm(file)
     end
   end
 
@@ -107,7 +105,7 @@ module  Yac
     new_name = add_file(new_filename)
 
     if new_name && confirm("You Are Renaming #{file} To #{new_name}")
-      @working_git.mv(file,new_name)
+      Git.mv(file,new_name)
     end
   end
 
