@@ -23,6 +23,7 @@ module  Yac
     (help && exit) if args.empty?
     case args.first
     when "-S" then search(args[1,args.size])
+    when "-i" then init
     when "-u" then update(args[1,args.size])
     when "-p" then push(args[1,args.size])
     when "-l" then log(args[1,args.size])

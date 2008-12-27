@@ -13,79 +13,64 @@
 
 == How To Use
 
-=== To initialize repositories:
-    When you run any command,The repositories will be initialize automatically.
+=== Initialize repositories:
+  $ yac -i
 
-=== To show a cheat sheet:
-    $ yac (show) [cheatsheet] ( you can use * for any chars)
-    Eg:
-    $ yac lin*x
-    $ yac l/o/a    To show linux/gentoo/masked
+=== Show a cheat sheet:
+  $ yac /cheatsheet/	    ( * => any chars)
+  E.g:
+    $ yac lin*x    => linux  linux/welcome
+    $ yac l/o/a    => linux/gentoo/masked  linux/gentoo/layman
 
 === To edit a cheat sheet
-    $ yac -e [cheatsheet] (Yes,you can use * for any chars also,then choose one to edit)
+  $ yac -e /cheatsheet/	    ( * => any chars)
 
 === To add a cheat sheet
-    $ yac -a [cheatsheet] (OMG,you can also use *)
-    Eg:
-    $ yac -a li*x/install
-    Then will display all directories match /li*x/,feel freely to choose one of them,
-    A new file named install.ch will be added to the directory!
+  $ yac -a /cheatsheet/	    ( * => any chars)
+  Eg:
+     yac -a li*x/install
     $ yac -a l/oo/install
-    Oh,no,you can choose linux/gentoo as the directory for the install file
 
 === To rm a cheat sheet
-    $ yac -r [cheatsheet] (Sure,you can use *)
+  $ yac -r [cheatsheet]	    ( * => any chars)
 
 === Search all sheets
-    $ yac -S [keyword] (@Take Attention:@ You are allowed to use perl-like Regex)
-    Eg:
+  $ yac -S [keyword] (@Take Attention:@ Perl-like Regexp)
+  Eg:
     $ yac -S lin.*x
-    $ yac -S '\$:'    To Search $:
-    And Even:
+    $ yac -S '\$:'          => To Search $:
     $ yac -S "r(uby|ails)"
 
 === Update repositories
-    $ yac -u main  => Update main repository
-    $ yac -u all => Update all repositories
-    $ yac -u => Update private repository
+  $ yac -u main => main repository
+  $ yac -u all  => all repositories
+  $ yac -u      => private repository
 
 === Shell
-    $ yac -s main => Open the main repository's shell
-    $ yac -s => Open the private repository's shell
+  $ yac -s main => Main repository's shell
+  $ yac -s      => Private repository's shell
 
 == Repository Push
-    $ yac -p main => Push the main repository
-    $ yac -p all => Push all repositories
-    $ yac -p => Push the private repository
+  $ yac -p main => Main repository
+  $ yac -p all  => All repositories
+  $ yac -p      => Private repository
 
 == Rename/mv a cheatsheet:
-    $ yac -m [orign_name] [new_name]
+  $ yac -m [orign_name] [new_name]
 
 === Help (display this file)
-    $ yac -h
+  $ yac -h
 
 === Version
-    $ yac -v
-
-=== Documents format
-   All text file add ".ch" as suffix for butter editor highlight
-   (A very very simple vim script can be found here : http://www.vim.org/scripts/script.php?script_id=2399)
-
-   At the beginning of the row,plus N = for the N-class title
-
-   Words wrapped by @ for highlight
+  $ yac -v
 
 === The configure file
-   Default use $HOME/.yacrc , See the example file under resources directory
-
-=== Others
-   Add @ before [keyword] will only affect the main repository
+  <$HOME/.yacrc>  OR  <Example file under resources directory>
 
 == REQUIREMENTS:
 * Ruby
 * Git
-* rubygems
+* RubyGems
 
 == LICENSE:
 
@@ -94,5 +79,5 @@ This software is shared by GPL3 License
 Copyright (c) 2008 Jinzhu Zhang
 
 == BY: Jinzhu Zhang
-http://www.zhangjinzhu.com
-wosmvp (no-spam) gmail (no-spam) com
+  http://www.zhangjinzhu.com
+  wosmvp (no-spam) gmail (no-spam) com
