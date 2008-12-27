@@ -1,10 +1,10 @@
+Manifest
 CHANGELOG
 resources/yacrc
 bin/yac
 Rakefile
-yac.gemspec
 lib/git.rb
 lib/format.rb
+lib/symbol.rb
 lib/yac.rb
 README.rdoc
-Manifest
