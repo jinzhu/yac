@@ -10,28 +10,30 @@ class Git
     end
 
     def mv(orig,new)
-      FileUtils.mkdir_p(File.dirname(file))
+      FileUtils.mkdir_p(File.dirname(new))
       system("git mv #{orig} #{new}")
       self.commit("#{cleanup_name(orig)} Renamed to #{cleanup_name(new)}")
     end
 
     def add(file)
-      `git add '#{file}'`
-      self.commit("#{cleanup_name(file)} Added")
+      if File.exist?(file)
+        system("git add '#{file}'")
+        self.commit("#{cleanup_name(file)} Added")
+      end
     end
 
     def edit(file)
-      `git add '#{file}'`
+      system("git add '#{file}'")
       self.commit("#{cleanup_name(file)} Updated")
     end
 
     def rm(file)
-      `git rm -f '#{file}'`
+      system("git rm -f '#{file}'")
       self.commit("#{cleanup_name(file)} Removed")
     end
 
     def commit(msg,*args)
-      `git commit #{args.to_s} -m '#{msg}'`
+      system("git commit #{args.to_s} -m '#{msg}' >/dev/null")
     end
 
     def cleanup_name(f)

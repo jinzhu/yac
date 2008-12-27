@@ -1,5 +1,5 @@
 $LOAD_PATH << File.dirname(__FILE__)
-%w(git fileutils yaml symbol format).each {|f| require f}
+%w(git fileutils yaml format symbol).each {|f| require f}
 
 module  Yac
   include Format
@@ -210,6 +210,7 @@ module  Yac
   def choose_one(stuff)
     return false unless stuff.size > 0
 
+    # FIXME truncate
     stuff.each_index do |x|
       colorful("%2s" % (x+1).to_s,"line_number",false)
       printf "%-22s\t" % [stuff[x].rstrip]
