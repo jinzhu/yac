@@ -4,18 +4,19 @@ $LOAD_PATH << File.dirname(__FILE__)
 module  Yac
   include Format
   extend self
+
   VERSION = '1.3.2'
+
   YACRC = File.join("#{ENV['HOME']}",".yacrc")
-
-  FileUtils.cp(File.join(File.dirname(__FILE__), "..","resources","yacrc"), YACRC) unless File.exist?(YACRC)
-
-  CONFIG = YAML.load_file(File.join(ENV['HOME'],".yacrc"))
+  CONFIG = YAML.load_file( File.exist?(YACRC) ? YACRC :
+              File.join(File.dirname(__FILE__), "..","resources","yacrc"))
 
   CONFIG["root"] ||= File.join(ENV['HOME'],".yac")
 
-  @main_path, @pri_path = File.join(CONFIG["root"],"/main/"), File.join(CONFIG["root"],"/private/")
-  @main_git = Git.new(@main_path)
-  @pri_git = Git.new(@pri_path)
+  @main_path = File.join(CONFIG["root"],"/main/")
+  @pri_path  = File.join(CONFIG["root"],"/private/")
+  @main_git  = Git.new(@main_path)
+  @pri_git   = Git.new(@pri_path)
 
   def new(args)
     init unless File.exist?(@main_path) && File.exist?(@pri_path)
