@@ -198,16 +198,10 @@ module  Yac
     end
   end
 
-  def full_path(args)
-    return false unless args
-    if args =~ /^@/
-      @working_git = @main_git
-      file = @main_path + args.sub(/^@/,"")
-    else
-      @working_git = @pri_git
-      file = @pri_path + args
-    end
-    return file.strip
+  def full_path(filename)
+    return false unless filename
+    filename.sub!(/^@/,'') ? Dir.chdir(@main_path) : Dir.chdir(@pri_path)
+    return filename.strip
   end
 
   def confirm(*msg)
