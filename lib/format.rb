@@ -58,7 +58,7 @@ module Format
   end
 
   def edit_text(file)
-    # FIXME prepare_dir(file)
+    FileUtils.mkdir_p(File.dirname(file))   # Prepare Directory When Add File
     colorful(Doc_Err,'warn') unless system("#{Yac::CONFIG["editor"]||ENV['EDITOR']} '#{file}'")
   end
 
@@ -72,9 +72,5 @@ module Format
     stuff.to_s.scan(empha_regexp) do |x|
       return stuff.gsub(x[0],"\e[#{Yac::CONFIG["empha"]}m%s\e[%sm" % [x[1],Yac::CONFIG[level]])
     end
-  end
-
-  def prepare_dir(file)
-    FileUtils.mkdir_p(File.dirname(file))
   end
 end
