@@ -23,6 +23,7 @@ class Git
     end
 
     def edit(file)
+      return rm(file) if File.zero?(file)
       system("git add '#{file}'")
       self.commit("#{cleanup_name(file)} Updated")
     end
