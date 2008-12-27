@@ -60,6 +60,14 @@ module  Yac
     search_content(args)
   end
 
+  def add(args)
+    file = add_file(args)
+    if file && confirm("You Are Adding #{file}")
+      edit_text(file)
+      @working_git.add(file)
+    end
+  end
+
   def edit(args)
     file = search_name(args,"Edit")
     if file
@@ -73,10 +81,6 @@ module  Yac
     if file && confirm("You Are Removing #{file}.")
       @working_git.rm(file)
     end
-  end
-
-  def add(args)
-    args.each {|x| add_single(x)}
   end
 
   def help
@@ -107,14 +111,6 @@ module  Yac
   end
 
   protected
-  def add_single(args)
-    file = add_file(args)
-    if file && confirm("You Are Adding #{file}")
-      edit_text(file)
-      @working_git.add(file)
-    end
-  end
-
   def add_file(args,suffix = ".ch")
     if args.include?('/') && args =~ /(@?)(?:(.*)\/)(.+)/ #choose directory
       prefix,path_name,file_name = $1,$2,$3
