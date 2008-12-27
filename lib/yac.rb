@@ -19,22 +19,22 @@ module  Yac
   @pri_git   = Git.new(@pri_path)
 
   def new(args)
-    init unless File.exist?(@main_path) && File.exist?(@pri_path)
     (help && exit) if args.empty?
-    case args.first
-    when "-S" then search(args[1,args.size])
+    operate,target = args.first,args[1,args.size].join(' ')
+    case operate
     when "-i" then init
-    when "-u" then update(args[1,args.size])
-    when "-p" then push(args[1,args.size])
-    when "-l" then log(args[1,args.size])
-    when "-a" then add(args[1,args.size])
-    when "-e" then edit(args[1,args.size])
+    when "-S" then search(target)
+    when "-u" then update(target)
+    when "-p" then push(target)
+    when "-l" then log(target)
+    when "-a" then add(target)
+    when "-e" then edit(target)
     when /^(help|-h|yac|--help)$/ then help
-    when "-s" then shell(args[1,args.size])
-    when "-r" then rm(args[1,args.size])
-    when "-m" then mv(args[1,args.size])
+    when "-s" then shell(target)
+    when "-r" then rm(target)
+    when "-m" then mv(target)
     when "-v" then colorful("Yac Version: #{Yac::VERSION}",'notice')
-    else show(args)
+    else show(operate + ' ' + target)
     end
   end
 
@@ -42,24 +42,22 @@ module  Yac
     {"main" => @main_path,"private" => @pri_path}.each do |name,path|
       if File.exist?(path)
         colorful("#{name} repository has already initialized.","notice")
-      else
-        if CONFIG["#{name}"] && CONFIG["#{name}"]['clone-from']
-          colorful("Initialize #{name} repository from #{CONFIG[name]['clone-from']}","notice")
-          Git.clone(CONFIG["#{name}"]['clone-from'],path)
-        else
-          colorful("Initialize #{name} repository from scratch","notice")
-          Git.init(path)
-        end
+      elsif CONFIG["#{name}"] && CONFIG["#{name}"]['clone-from']
+        colorful("Initialize #{name} repository from #{CONFIG[name]['clone-from']}","notice")
+        Git.clone(CONFIG["#{name}"]['clone-from'],path)
       end
     end
   end
 
   def show(args)
-    args.each {|x| show_single(x)}
+    loop do
+      file = search_name(args,"Show")
+      file ? format_file(file) : break
+    end
   end
 
   def search(args)
-    args.each {|x| search_content(x)}
+    search_content(args)
   end
 
   def update(args)
@@ -153,13 +151,6 @@ module  Yac
       return full_path(choosed_path + "/" + file_name + suffix) if choosed_path
     else
       return full_path(args+suffix)
-    end
-  end
-
-  def show_single(args)
-    loop do
-      file = search_name(args,"Show")
-      file ? format_file(file) : break
     end
   end
 
