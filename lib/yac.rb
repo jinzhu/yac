@@ -1,5 +1,5 @@
 $LOAD_PATH << File.dirname(__FILE__)
-%w(git fileutils yaml format).each {|f| require f}
+%w(git fileutils yaml symbol format).each {|f| require f}
 
 module  Yac
   include Format
