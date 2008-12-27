@@ -61,15 +61,22 @@ module  Yac
   end
 
   def edit(args)
-    args.each {|x| edit_single(x)}
+    file = search_name(args,"Edit")
+    if file
+      edit_file(file)
+      @working_git.edit(file)
+    end
+  end
+
+  def rm(args)
+    file = search_name(args,"Remove")
+    if file && confirm("You Are Removing #{file}.")
+      @working_git.rm(file)
+    end
   end
 
   def add(args)
     args.each {|x| add_single(x)}
-  end
-
-  def rm(args)
-    args.each {|x| rm_single(x)}
   end
 
   def help
@@ -122,21 +129,6 @@ module  Yac
       return full_path(choosed_path + "/" + file_name + suffix) if choosed_path
     else
       return full_path(args+suffix)
-    end
-  end
-
-  def rm_single(args)
-    file = search_name(args,"Remove")
-    if file && confirm("You Are Removing #{file}.")
-      @working_git.rm(file)
-    end
-  end
-
-  def edit_single(args)
-    file = search_name(args,"Edit")
-    if file
-      edit_file(file)
-      @working_git.edit(file)
     end
   end
 
