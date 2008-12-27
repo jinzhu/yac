@@ -60,35 +60,6 @@ module  Yac
     search_content(args)
   end
 
-  def update(args)
-    git_command(args,'pull')
-  rescue
-    colorful("ERROR: can not update the repository,\n\n#{$!}","warn")
-  end
-
-  def push(args)
-    git_command(args,'push')
-  rescue
-    colorful("Usage:\nyac push ( main | all )\n\nTry `yac -h` for more help\n\n#{$1}","warn")
-  end
-
-  def log(args)
-    git_command(args,'log --color --date-order --reverse')
-  end
-
-  def git_command(env,command)
-    case env.to_s
-    when /main/ then git_path = [@main_path]
-    when /all/ then git_path = [@main_path,@pri_path]
-    else git_path = [@pri_path]
-    end
-
-    git_path.each do |x|
-      colorful(x,'filename')
-      colorful( `cd #{x} && git #{command}` ,"notice")
-    end
-  end
-
   def edit(args)
     args.each {|x| edit_single(x)}
   end
@@ -166,6 +137,35 @@ module  Yac
     if file
       edit_file(file)
       @working_git.edit(file)
+    end
+  end
+
+  #
+  # Git
+  #
+
+  def update(args)
+    git_command(args,'pull')
+  end
+
+  def push(args)
+    git_command(args,'push')
+  end
+
+  def log(args)
+    git_command(args,'log --color --date-order --reverse')
+  end
+
+  def git_command(env,command)
+    case env.to_s
+    when /main/ then git_path = [@main_path]
+    when /all/ then git_path = [@main_path,@pri_path]
+    else git_path = [@pri_path]
+    end
+
+    git_path.each do |x|
+      colorful(x,'filename')
+      system("cd #{x} && git #{command}")
     end
   end
 
