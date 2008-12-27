@@ -32,7 +32,7 @@ module  Yac
     when /^(help|-h|yac|--help)$/ then help
     when "-s" then shell(target)
     when "-r" then rm(target)
-    when "-m" then mv(target)
+    when "-m" then mv(args[1,args.size])
     when "-v" then colorful("Yac Version: #{Yac::VERSION}",'notice')
     else show(operate + ' ' + target)
     end
@@ -61,7 +61,7 @@ module  Yac
   end
 
   def add(args)
-    file = add_file(args)
+    file = add_file(args,'.yac')
     if file && confirm("You Are Adding #{file}")
       edit_text(file)
       @working_git.add(file)
@@ -98,32 +98,35 @@ module  Yac
   end
 
   def mv(args)
-    (colorful("Usage:\nyac mv [orign_name] [new_name]\n\nTry `yac -h` for more help","warn");exit) unless args.size == 2
+    (colorful("Usage:\nyac mv [orign_name] [new_name]","warn");exit) unless args.size == 2
     file = search_name(args[0],"Rename")
-    #You can use $ yac mv linux.ch linux/ to rename linux.ch to linux/linux.ch
-    new_filename = args[1].sub(/\/$/,file.sub(/.*\/(.*)(\..*)/,'/\1')).sub(/^(@)?/,file =~ /^#{@main_path}/ ? "@":"")
-    new_name = add_file(new_filename ,file.sub(/.*(\..*)/,'\1'))
+
+    # You can use $ yac mv linux.ch linux/ to rename linux.ch to linux/linux.ch
+    new_filename = args[1] =~ /\/$/ ? args[1] : args[1] + file.match(/[^\/]$/).to_s
+    new_filename = '@' + new_filename if file =~ /^#{@main_path}/
+    new_name = add_file(new_filename)
+
     if new_name && confirm("You Are Renaming #{file} To #{new_name}")
-      prepare_dir(new_name)
       @working_git.mv(file,new_name)
     end
   end
 
   protected
-  def add_file(args,suffix = ".ch")
-    if args.include?('/') && args =~ /(@?)(?:(.*)\/)(.+)/ #choose directory
+  def add_file(args,*suffix)
+    suffix = suffix ? suffix.to_s : ''
+    if args.include?('/') && args =~ /(@?)(?:(.*)\/)(.+)/       #choose directory
       prefix,path_name,file_name = $1,$2,$3
-      path = prefix.empty? ? @pri_path : @main_path           #choose git path
-      # Yes,you can use 'l/e' to choose 'linux/gentoo'
+      path = prefix.empty? ? @pri_path : @main_path             #choose git path
+      # Use 'l/e' to choose 'linux/gentoo'
       all_path = %x{
-        find #{path} -type d -iwholename '#{path}*#{path_name.gsub(/\//,'*/*')}*' -not -iwholename '*.git*'| sed 's/^.*\\/\\(private\\|main\\)\\//#{prefix}/'
+        find -L #{path} -type d -iwholename '#{path}*#{path_name.gsub(/\//,'*/*')}*' -not -iwholename '*\/.git\/*' | sed 's/^.*\\/\\(private\\|main\\)\\//#{prefix}/'
       }.to_a.map(&:strip).concat([prefix+path_name]).uniq
 
       colorful("Which directory do you want to use:","notice")
       choosed_path = choose_one(all_path)
-      return full_path(choosed_path + "/" + file_name + suffix) if choosed_path
+      return choosed_path ?  full_path(choosed_path + "/" + file_name + suffix) : false
     else
-      return full_path(args+suffix)
+      return full_path(args + suffix)
     end
   end
 

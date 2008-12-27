@@ -13,8 +13,9 @@ class Git
   end
 
   def mv(orig,new,with_commit = true)
-     `cd '#@working_path' && git mv #{orig} #{new}`
-     self.commit("#{clean_name(orig)} Renamed to #{clean_name(new)}") if with_commit
+    FileUtils.mkdir_p(File.dirname(file))
+    system("cd '#@working_path' && git mv #{orig} #{new}")
+    self.commit("#{clean_name(orig)} Renamed to #{clean_name(new)}") if with_commit
   end
 
   def add(file,with_commit = true)
