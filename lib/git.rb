@@ -17,6 +17,7 @@ class Git
 
     def add(file)
       if File.exist?(file)
+        return system("rm #{file}") if File.zero?(file)
         system("git add '#{file}'")
         self.commit("#{cleanup_name(file)} Added")
       end
