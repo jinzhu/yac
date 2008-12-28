@@ -11,6 +11,7 @@ editor:  vim
 
 view_pdf:  evince
 view_image:  eog
+show_office:  ooffice
 
 edit_pdf:  ooffice
 edit_image:  gimp

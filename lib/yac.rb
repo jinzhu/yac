@@ -50,7 +50,7 @@ module  Yac
   def show(args)
     loop do
       file = search_name(args,"Show")
-      file ? format_file(file) : break
+      file ? handle_file(file) : break
     end
   end
 
@@ -69,7 +69,7 @@ module  Yac
   def edit(args)
     file = search_name(args,"Edit")
     if file
-      edit_file(file)
+      handle_file(file,'edit')
       Git.edit(file)
     end
   end
@@ -82,7 +82,7 @@ module  Yac
   end
 
   def help
-    format_file(File.dirname(__FILE__)+"/../README.rdoc")
+    handle_file(File.dirname(__FILE__)+"/../README.rdoc")
   end
 
   def shell(args)
@@ -196,7 +196,7 @@ module  Yac
     loop do
       colorful("All files Contain #{args.strip}","notice")
       file = full_path(choose_one(all_result))
-      file ? format_file(file) : break
+      file ? handle_file(file) : break
     end
   end
 
