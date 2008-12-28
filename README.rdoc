@@ -27,8 +27,9 @@
 
 === To add a cheat sheet
   $ yac -a /cheatsheet/	    ( * => any chars)
+  ('rename/add' use '@' as prefix will impact the main repository,otherwise private repository)
   Eg:
-     yac -a li*x/install
+    $ yac -a li*x/install
     $ yac -a l/oo/install
 
 === To rm a cheat sheet
@@ -57,6 +58,7 @@
 
 == Rename/mv a cheatsheet:
   $ yac -m [orign_name] [new_name]
+  ('rename/add' use '@' as prefix impact the main repository,otherwise private repository)
 
 === Help (display this file)
   $ yac -h
