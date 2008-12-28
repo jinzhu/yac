@@ -7,6 +7,23 @@ module Yac
 
   VERSION = '1.3.2'
 
+  @color = {
+    'head1'       => "1;31",
+    'head2'       => "1;36",
+    'head3'       => "1;33",
+    'head4'       => "1;32",
+    'head5'       => "1;34",
+    'head6'       => "1;35",
+    'head7'       => "1;37",
+
+    'shell'       => "01;31",
+    'warn'        => "31",
+    'notice'      => "33",
+    'empha'       => "31;43",
+    'filename'    => "34",
+    'line_number' => "32",
+  }
+
   YACRC = File.join("#{ENV['HOME']}",".yacrc")
   CONFIG = YAML.load_file( File.exist?(YACRC) ? YACRC :
               File.join(File.dirname(__FILE__), "..","resources","yacrc"))

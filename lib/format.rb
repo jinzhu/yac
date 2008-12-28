@@ -36,19 +36,20 @@ module Format
       colorful("\s"*(level-1) + section,"head#{level}")
     else
       section = empha(section,"text",empha_regexp) if empha_regexp
+      section.sub!(/^(\s*\$\s+.*)/,"\e[#{@color['shell']}m"+'\1'+"\e[0m")
       colorful(section)
     end
   end
 
   def colorful(stuff,level="text",line_break = true)
     stuff = empha(stuff,level)
-    print "\e[%sm%s\e[0m " % [Yac::CONFIG[level],stuff.rstrip]
+    print "\e[%sm%s\e[0m " % [@color[level],stuff.rstrip]
     print "\n" if line_break
   end
 
   def empha(stuff,level="text",empha_regexp=/(@(.*)@)/)
     stuff.to_s.scan(empha_regexp) do |x|
-      return stuff.gsub(x[0],"\e[#{Yac::CONFIG["empha"]}m%s\e[%sm" % [x[1],Yac::CONFIG[level]])
+      return stuff.gsub(x[0],"\e[#{@color["empha"]}m%s\e[%sm" % [x[1],@color[level]])
     end
   end
 end
