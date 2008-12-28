@@ -161,7 +161,7 @@ module Yac
   # Search
   #
 
-  def search_name(args,msg = nil)
+  def search_name(args,msg)
     path = (args =~ /^(@)/) ? [@pri_path] : [@main_path , @pri_path]
     result = []
     path.each do |x|
@@ -180,6 +180,7 @@ module Yac
   end
 
   def search_content(args)
+    # TODO @ only search private repository
     # Too slow
     # find -type f -exec sh -c 'file="{}";type=$(file $file);[[ $type =~ " text" ]] && echo $file' \;
     result = `find "#{@pri_path}" -not -iwholename '*\/.git\/*' | grep -E '*\.[ch|yac|yml]'| xargs grep -HniP '#{args}'`.to_a
