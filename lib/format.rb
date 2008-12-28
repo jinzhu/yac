@@ -35,8 +35,10 @@ module Format
       section = empha(section,"head#{level}",empha_regexp) if empha_regexp
       colorful("\s"*(level-1) + section,"head#{level}")
     else
-      section = empha(section,"text",empha_regexp) if empha_regexp
+      # command or plain text
+      level = (section =~ /^\s*\$\s+/) ? 'shell' : 'text'
       section.sub!(/^(\s*\$\s+.*)/,"\e[#{@color['shell']}m"+'\1'+"\e[0m")
+      section = empha(section,level,empha_regexp) if empha_regexp
       colorful(section)
     end
   end
@@ -49,7 +51,7 @@ module Format
 
   def empha(stuff,level="text",empha_regexp=/(@(.*)@)/)
     stuff.to_s.scan(empha_regexp) do |x|
-      return stuff.gsub(x[0],"\e[#{@color["empha"]}m%s\e[%sm" % [x[1],@color[level]])
+      return stuff.gsub(x[0],"\e[0m\e[#{@color["empha"]}m%s\e[0m\e[%sm" % [x[1],@color[level]])
     end
   end
 end

@@ -19,7 +19,7 @@ module Yac
     'shell'       => "01;35",
     'warn'        => "31",
     'notice'      => "33",
-    'empha'       => "31;43",
+    'empha'       => "31",
     'filename'    => "34",
     'line_number' => "32",
   }
