@@ -1,25 +1,23 @@
 module Format
-  Pdf_Err    = "Please Modify ~/.yacrc To Provide A Valid Command To Operate PDF Document"
-  Image_Err  = "Please Modify ~/.yacrc To Provide A Valid Command To Operate Image Document"
-  Office_Err = "Please Modify ~/.yacrc To Provide A Valid Command To Operate Office Document"
-  Doc_Err    = "Please Modify ~/.yacrc To Provide A Valid Command To Operate Text Document"
+
+  def Error(x)
+    colorful "Please Provide A Valid Command To Operate #{x} (~/.yacrc)",'warn'
+  end
 
   def format_file(file)
     colorful(file,"filename") if file
     case `file "#{file}" 2>/dev/null`
     when / PDF document/
-      colorful(Pdf_Err,'warn') unless system("#{Yac::CONFIG["view_pdf"]} '#{file}' ")
+      Error('PDF')   unless system("#{Yac::CONFIG["view_pdf"]} '#{file}' ")
     when /( image)|( bitmap)|(\.svg)/
-      colorful(Image_Err,'warn') unless system("#{Yac::CONFIG["view_image"]} '#{file}'")
+      Error('Image') unless system("#{Yac::CONFIG["view_image"]} '#{file}'")
     when /Office Document/
       open_office(file)
     else
       if File.extname(file) =~ /^\.(od[tfspg]|uof)$/ # FileType: odf uof ods odp ...
         open_office(file)
       else
-        File.new(file).each do |x|
-          format_section(x)
-        end
+        File.new(file).each {|x| format_section(x)}
       end
     end
   end
@@ -39,9 +37,9 @@ module Format
   def edit_file(file)
     case `file "#{file}" 2>/dev/null`
     when / PDF /
-      colorful(Pdf_Err,'warn')   unless system("#{Yac::CONFIG["edit_pdf"]} '#{file}'")
+      Error('PDF')   unless system("#{Yac::CONFIG["edit_pdf"]} '#{file}'")
     when /( image )|(\.svg)/
-      colorful(Image_Err,'warn') unless system("#{Yac::CONFIG["edit_image"]} '#{file}'")
+      Error('Image') unless system("#{Yac::CONFIG["edit_image"]} '#{file}'")
     when /Office Document/
       open_office(file)
     else
@@ -54,12 +52,12 @@ module Format
   end
 
   def open_office(file)
-    colorful(Office_Err,'warn') unless system("#{Yac::CONFIG["edit_office"]} '#{file}'")
+    Error('Office') unless system("#{Yac::CONFIG["edit_office"]} '#{file}'")
   end
 
   def edit_text(file)
     FileUtils.mkdir_p(File.dirname(file))   # Prepare Directory When Add File
-    colorful(Doc_Err,'warn') unless system("#{Yac::CONFIG["editor"]||ENV['EDITOR']} '#{file}'")
+    Error('Text') unless system("#{Yac::CONFIG["editor"]||ENV['EDITOR']} '#{file}'")
   end
 
   def colorful(stuff,level="text",line_break = true)
