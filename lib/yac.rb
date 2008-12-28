@@ -16,7 +16,7 @@ module Yac
     'head6'       => "1;35",
     'head7'       => "1;37",
 
-    'shell'       => "01;31",
+    'shell'       => "01;35",
     'warn'        => "31",
     'notice'      => "33",
     'empha'       => "31;43",
@@ -197,11 +197,17 @@ module Yac
   end
 
   def search_content(args)
-    # TODO @ only search private repository
-    # Too slow
-    # find -type f -exec sh -c 'file="{}";type=$(file $file);[[ $type =~ " text" ]] && echo $file' \;
-    result = `find "#{@pri_path}" -not -iwholename '*\/.git\/*' | grep -E '*\.[ch|yac|yml]'| xargs grep -HniP '#{args}'`.to_a
-    result.concat(`find "#{@main_path}" -not -iwholename '*\/.git\/*' | grep -E '*\.[ch|yac|yml]'| xargs grep -HniP '#{args}' | sed 's/^/@/g'`.to_a)
+    # find -type f -exec sh -c 'file="{}";type=$(file $file);[[ $type =~ " text" ]] && echo $file' \; => Too slow
+
+    # If use @ as prefix , only search private repository
+    result = args.sub!(/^@/,'') ? [] : %x(
+      find "#{@main_path}" -not -iwholename '*\/.git\/*' | grep -E '*\.[ch|yac|yml]'| xargs grep -HniP '#{args}' | sed 's/^/@/g'
+    ).to_a
+
+    result.concat %x(
+      find "#{@pri_path}" -not -iwholename '*\/.git\/*' | grep -E '*\.[ch|yac|yml]'| xargs grep -HniP '#{args}'
+    ).to_a
+
     all_result = []
     result.each do |x|
       stuff = x.split(':',3)
