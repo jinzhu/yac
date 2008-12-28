@@ -18,7 +18,7 @@ module Format
       if File.extname(file) =~ /^\.(od[tfspg]|uof)$/ # FileType: odf uof ods odp ...
         Error('Office') unless system("#{Yac::CONFIG["#{action}_office"]} '#{file}'")
       else
-        action =~ 'show' ? File.new(file).each {|x| format_section(x)} : edit_text(file)
+        action =~ 'show' ? File.new(file).each {|x| format_text(x)} : edit_text(file)
       end
     end
   end
@@ -28,7 +28,7 @@ module Format
     Error('Text') unless system("#{Yac::CONFIG["editor"]||ENV['EDITOR']} '#{file}'")
   end
 
-  def format_section(section,empha_regexp = false)
+  def format_text(section,empha_regexp = false)
     if section =~ /^(=+)\s+(.*)/
       level,section = $1.size,$2
       # Highlight keyword when searching
