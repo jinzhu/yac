@@ -232,7 +232,7 @@ module Yac
 
   def confirm(*msg)
     colorful("#{msg.to_s}\nAre You Sure (Y/N) (q:quit):","notice",false)
-    return STDIN.gets.to_s =~ /n|q/i ? false : true
+    return (STDIN.gets || exit) =~ /n|q/i ? false : true
   end
 
   def choose_one(args)
@@ -256,7 +256,7 @@ module Yac
 
   def choose_range(size)
     colorful("Please Input A Valid Number (1..#{size}) (q:quit): ","notice",false)
-    num = STDIN.gets
+    num = STDIN.gets || exit
     return false if num =~ /q/i
     choosed_num = num.strip.empty? ? 1 : num.to_i
     (1..size).member?(choosed_num) ? (return choosed_num) : choose_range(size)
