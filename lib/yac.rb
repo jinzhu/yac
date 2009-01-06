@@ -197,15 +197,13 @@ module Yac
   end
 
   def search_content(args)
-    # find -type f -exec sh -c 'file="{}";type=$(file $file);[[ $type =~ " text" ]] && echo $file' \; => Too slow
-
     # If use @ as prefix , only search private repository
     result = args.sub!(/^@/,'') ? [] : %x(
-      find "#{@main_path}" -not -iwholename '*\/.git\/*' | grep -E '*\.[ch|yac|yml]'| xargs grep -HniP '#{args}' | sed 's/^/@/g'
+      find "#{@main_path}" -not -iwholename '*\/.git\/*' | xargs grep -HniP '#{args}' --binary-files=without-match | sed 's/^/@/g'
     ).to_a
 
     result.concat %x(
-      find "#{@pri_path}" -not -iwholename '*\/.git\/*' | grep -E '*\.[ch|yac|yml]'| xargs grep -HniP '#{args}'
+      find "#{@pri_path}" -not -iwholename '*\/.git\/*' | xargs grep -HniP '#{args}' --binary-files=without-match
     ).to_a
 
     all_result = []
@@ -250,7 +248,7 @@ module Yac
   end
 
   def trancate_filename(name)
-    name.sub!(/\..*$/,'').sub!(/^@/,'')
+    name = name.sub(/\..*$/,'').sub(/^@/,'')
     content = name.size > 22 ? '..' + name.reverse[0,20].reverse : name
   end
 
