@@ -34,22 +34,22 @@ module Yac
   @pri_path  = File.join(CONFIG["root"],"/private/")
 
   def new(args)
-    (help && exit) if args.empty?
-    operate,target = args.first,args[1,args.size].join(' ')
+    operate, target = args.shift.to_s , args.join(' ').to_s
+
     case operate
     when "-i" then init
-    when "-S" then search(target)
-    when "-u" then update(target)
-    when "-p" then push(target)
-    when "-l" then log(target)
-    when "-a" then add(target)
-    when "-e" then edit(target)
+    when "-S" then search target
+    when "-u" then update target
+    when "-p" then push   target
+    when "-l" then log    target
+    when "-a" then add    target
+    when "-e" then edit   target
+    when "-s" then shell  target
+    when "-r" then rm     target
+    when "-m" then mv     args
     when /^(help|-h|yac|--help)$/ then help
-    when "-s" then shell(target)
-    when "-r" then rm(target)
-    when "-m" then mv(args[1,args.size])
     when "-v" then colorful("Yac Version: #{Yac::VERSION}",'notice')
-    else show(operate + ' ' + target)
+    else show  operate + ' ' + target
     end
   end
 
