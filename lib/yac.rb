@@ -142,11 +142,10 @@ module Yac
   end
 
   protected
-  def add_file(args,*suffix)
-    suffix = suffix ? suffix.to_s : ''
-    if args.include?('/') && args =~ /(@?)(?:(.*)\/)(.+)/       #choose directory
+  def add_file(args,suffix='')
+    if args.include?('/') && args =~ /(@?)(?:(.*)\/)(.+)/   #choose directory
       prefix,path_name,file_name = $1,$2,$3
-      path = prefix.empty? ? @pri_path : @main_path             #choose git path
+      path = prefix.empty? ? @pri_path : @main_path         #choose git path
       # Use 'l/e' to choose 'linux/gentoo'
       all_path = %x{
         find -L #{path} -type d -iwholename '#{path}*#{path_name.gsub(/\//,'*/*')}*' -not -iwholename '*\/.git\/*' | sed 's/^.*\\/\\(private\\|main\\)\\//#{prefix}/'
@@ -243,8 +242,8 @@ module Yac
     return filename.strip
   end
 
-  def confirm(*msg)
-    colorful("#{msg.to_s}\nAre You Sure (Y/N) (q:quit):","notice",false)
+  def confirm(msg='')
+    colorful("#{msg}\nAre You Sure (Y/N) (q:quit):","notice",false)
     return (STDIN.gets || exit) =~ /n|q/i ? false : true
   end
 

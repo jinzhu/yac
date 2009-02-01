@@ -34,8 +34,8 @@ class Git
       self.commit("#{cleanup_name(file)} Removed")
     end
 
-    def commit(msg,*args)
-      system("git commit #{args.to_s} -m '#{msg}' >/dev/null")
+    def commit(msg,args='')
+      system("git commit #{args} -m '#{msg}' >/dev/null")
     end
 
     def cleanup_name(f)
