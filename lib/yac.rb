@@ -99,7 +99,22 @@ module Yac
   end
 
   def help
-    handle_file(File.dirname(__FILE__)+"/../README.rdoc")
+    puts <<-DOC.gsub(/^(\s*)/,'').gsub(/^\|(\s*)/,'\1')
+    Usage:
+    |   yac -i <keyword> init
+    |   yac -S <keyword> search
+    |   yac -u <keyword> update
+    |   yac -p <keyword> push
+    |   yac -l <keyword> log
+    |   yac -a <keyword> add
+    |   yac -e <keyword> edit
+    |   yac -s <keyword> shell
+    |   yac -r <keyword> delete<rm>
+    |   yac -m <keyword> rename<mv>
+    |   yac -h Show this help
+    |   yac -v Show Version
+    |   yac    <keyword> Show
+    DOC
   end
 
   def shell(args)
