@@ -5,7 +5,7 @@ module Yac
   include Format
   extend self
 
-  VERSION = '1.4.1'
+  VERSION = '1.4.2'
 
   @color = {
     'head1'       => "1;31",
