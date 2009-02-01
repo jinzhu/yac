@@ -135,7 +135,7 @@ module Yac
       # Use 'l/e' to choose 'linux/gentoo'
       all_path = %x{
         find -L #{path} -type d -iwholename '#{path}*#{path_name.gsub(/\//,'*/*')}*' -not -iwholename '*\/.git\/*' | sed 's/^.*\\/\\(private\\|main\\)\\//#{prefix}/'
-      }.to_a.map(&:strip).concat([prefix+path_name]).uniq
+      }.split("\n").map(&:strip).concat([prefix+path_name]).uniq
 
       colorful("Which directory do you want to use:","notice")
       choosed_path = choose_one(all_path)
@@ -184,7 +184,7 @@ module Yac
     path.each do |x|
       result.concat( %x{
         find -L "#{x}" -type f -iwholename '#{x}*#{args.gsub(/\//,'*/*').sub(/^@/,'').strip}*' -not -iwholename '*\/.git\/*'| sed 's/^.*\\/\\(private\\|main\\)\\//#{x=~/main/ ? '@':'' }/'
-      }.to_a )
+      }.split("\n") )
     end
 
     if result.empty?
@@ -200,11 +200,11 @@ module Yac
     # If use @ as prefix , only search private repository
     result = args.sub!(/^@/,'') ? [] : %x(
       find "#{@main_path}" -not -iwholename '*\/.git\/*' | xargs grep -HniP '#{args}' --binary-files=without-match | sed 's/^/@/g'
-    ).to_a
+    ).split("\n")
 
     result.concat %x(
       find "#{@pri_path}" -not -iwholename '*\/.git\/*' | xargs grep -HniP '#{args}' --binary-files=without-match
-    ).to_a
+    ).split("\n")
 
     all_result = []
     result.each do |x|
