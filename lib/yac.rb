@@ -32,6 +32,8 @@ module Yac
 
   @main_path = File.join(CONFIG["root"],"/main/")
   @pri_path  = File.join(CONFIG["root"],"/private/")
+  Dir.mkdir(@main_path) unless File.exist?(@main_path)
+  Dir.mkdir(@pri_path)  unless File.exist?(@pri_path)
 
   def new(args)
     operate, target = args.shift.to_s , args.join(' ').to_s
