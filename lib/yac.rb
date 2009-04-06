@@ -265,7 +265,7 @@ module Yac
 
   def trancate_filename(name)
     name = name.sub(/\..*$/,'').sub(/^@/,'')
-    content = name.size > 22 ? '..' + name.reverse[0,20].reverse : name
+    content = name.size > 22 ? name + "\n" : name
   end
 
   def choose_range(size)
