@@ -133,10 +133,10 @@ module Yac
     (colorful("Usage:\nyac mv [orign_name] [new_name]","warn");exit) unless args.size == 2
     file = search_name(args[0],"Rename")
 
-    # You can use $ yac mv linux linux/ to rename linux to linux/linux
-    new_filename = args[1] =~ /\/$/ ? args[1] : args[1] + file.match(/[^\/]$/).to_s
+    # You can use $ yac -m linux linux/ to rename linux to linux/linux
+    new_filename = (args[1] !~ /\/$/) ? args[1] : args[1] + file.match(/[^\/]*$/).to_s.sub(/\.\w*$/,'')
     new_filename = '@' + new_filename if file =~ /^#{@main_path}/
-    new_name = add_file(new_filename)
+    new_name = add_file(new_filename,'.yac')
 
     if new_name && confirm("You Are Renaming #{file} To #{new_name}")
       Git.mv(file,new_name)
