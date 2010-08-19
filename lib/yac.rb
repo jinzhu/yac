@@ -29,6 +29,7 @@ module Yac
               File.join(File.dirname(__FILE__), "..","resources","yacrc"))
 
   CONFIG["root"] ||= File.join(ENV['HOME'],".yac")
+  Dir.mkdir(CONFIG["root"]) unless File.exist?(CONFIG["root"])
 
   @main_path = File.join(CONFIG["root"],"/main/")
   @pri_path  = File.join(CONFIG["root"],"/private/")
